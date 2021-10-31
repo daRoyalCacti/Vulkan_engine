@@ -5,6 +5,7 @@ find_package(Vulkan)
 find_package(glfw3 3.3 REQUIRED)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release")
 
 add_executable(Vulkan_engine main.cpp rendering.cpp rendering.hpp)
 
