@@ -10,6 +10,10 @@
 #include <vector>
 
 #ifndef NDEBUG
+#define VALDIATION_LAYERS
+#endif
+
+#ifdef VALDIATION_LAYERS
 //a function to load and call the vkCreateDebugUtilsMessengerEXT
 // because this function comes from an extension, it is not loaded automatically
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
@@ -41,10 +45,7 @@ private:
     const unsigned vulkan_version = VK_API_VERSION_1_0; //the highest version of vulkan that the application is designed to use
 
     //validation layers
-#ifdef NDEBUG
-    static constexpr bool enable_validaion_layers = false;
-#else
-    static constexpr bool enable_validaion_layers = true;
+#ifdef VALDIATION_LAYERS
     static constexpr std::array<const char*, 1> validation_layers = {
             "VK_LAYER_KHRONOS_validation"
     };
@@ -58,7 +59,7 @@ private:
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
 
     //the settings used in debugCallback
-    void getDebugCallbackSettings(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+    static void getDebugCallbackSettings(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 
     //checking that all requested validation layers are available
     bool checkValidationLayerSupport();

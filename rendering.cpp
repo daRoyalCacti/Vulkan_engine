@@ -7,7 +7,7 @@
 #include <iostream>
 #include <cstring>
 
-#ifndef NDEBUG
+#ifdef VALDIATION_LAYERS
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
     auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT"); //loading the function
     if (func != nullptr) {  //if the function is loaded, run it
@@ -89,7 +89,7 @@ void rendering::checkExtensionSupport(const std::vector<const char*> &requried_e
     }
 }
 
-#ifndef NDEBUG
+#ifdef VALDIATION_LAYERS
 bool rendering::checkValidationLayerSupport() {
     unsigned layer_count = 0;   //store to total number of validation layers available
     //querying the number of validation layers
@@ -129,12 +129,13 @@ std::vector<const char*> rendering::getRequiredExtensions() {
     //putting the glw extensions into a vector to return
     std::vector<const char*> extensions(glfw_extensions, glfw_extensions + glfw_extension_count);
 
-    if constexpr (enable_validaion_layers) {
-        //extensions needed for validation layers
 
-        //we need VK_EXT_debug_utils to use the custom debug messengers
-        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);    //VK_EXT_DEBUG_UTILS_EXTENSION_NAME is a macro for "VK_EXT_debug_utils". https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VK_EXT_debug_utils.html
-    }
+    //extensions needed for validation layers
+    //we need VK_EXT_debug_utils to use the custom debug messengers
+#ifdef VALDIATION_LAYERS
+    extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);    //VK_EXT_DEBUG_UTILS_EXTENSION_NAME is a macro for "VK_EXT_debug_utils". https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VK_EXT_debug_utils.html
+#endif
+
 
     return extensions;
 }
@@ -159,14 +160,14 @@ void rendering::createInstance() {
     checkExtensionSupport(extensions);
 
     //checking if requested validation layers are supported
-    if constexpr (enable_validaion_layers) {
-#ifndef NDEBUG
-        const bool validation_layers_supported = checkValidationLayerSupport();
-        if (!validation_layers_supported) {
-            throw std::runtime_error("the validation layers requested are not supported");
-        }
-#endif
+
+#ifdef VALDIATION_LAYERS
+    const bool validation_layers_supported = checkValidationLayerSupport();
+    if (!validation_layers_supported) {
+        throw std::runtime_error("the validation layers requested are not supported");
     }
+#endif
+
 
 
 
@@ -179,24 +180,23 @@ void rendering::createInstance() {
     createInfo.enabledExtensionCount = extensions.size();    //number of global extensions to enable
     createInfo.ppEnabledExtensionNames = extensions.data();       //pointer to an array of strings containing the names of extensions to enable
     //validation layers
-    if constexpr (enable_validaion_layers) {
-        #ifndef NDEBUG
-        createInfo.enabledLayerCount = validation_layers.size();       //number of global layers to enable (validation layers)
-        createInfo.ppEnabledLayerNames = validation_layers.data();      //the list of the validation layers to use
 
-        //the regular validation debug caller requires an instance
-        //as such it is created after the instance and destroyed before it
-        //so now we pass the debug caller in here
-        VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-        getDebugCallbackSettings(debugCreateInfo);
+#ifdef VALDIATION_LAYERS
+    createInfo.enabledLayerCount = validation_layers.size();       //number of global layers to enable (validation layers)
+    createInfo.ppEnabledLayerNames = validation_layers.data();      //the list of the validation layers to use
 
-        //actually setting the value in the struct
-        createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
-        #endif
-    } else {
-        createInfo.enabledLayerCount = 0;       //number of global layers to enable (validation layers)
-        createInfo.pNext = nullptr;
-    }
+    //the regular validation debug caller requires an instance
+    //as such it is created after the instance and destroyed before it
+    //so now we pass the debug caller in here
+    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+    getDebugCallbackSettings(debugCreateInfo);
+
+    //actually setting the value in the struct
+    createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
+#else
+    createInfo.enabledLayerCount = 0;       //number of global layers to enable (validation layers)
+    createInfo.pNext = nullptr;
+#endif
 
 
 
@@ -210,8 +210,7 @@ void rendering::createInstance() {
 
 }
 
-#ifndef NDEBUG
-
+#ifdef VALDIATION_LAYERS
 VKAPI_ATTR VkBool32 VKAPI_CALL rendering::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
     //messageSeverity can take values:
     // - VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: Diagnostic message
@@ -239,15 +238,29 @@ VKAPI_ATTR VkBool32 VKAPI_CALL rendering::debugCallback(VkDebugUtilsMessageSever
 
 
     //just print the error to the error stream
-    std::cerr << "validation layer: " << pCallbackData->pMessage << "\n";
+    std::cerr << "validation layer: ";
+
+    if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
+        std::cerr << " verbose: ";
+    } else if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
+        std::cerr << " info: ";
+    } else if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
+        std::cerr << " warning: ";
+    } else if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
+        std::cerr << " error: ";
+    } else {
+        std::cerr << " unknown severity: ";
+    }
+
+    std::cerr << pCallbackData->pMessage << "\n";
 
     return VK_FALSE;
 }
 
 void rendering::getDebugCallbackSettings(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT; //sType must be VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT
-    createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT; //the severity events that will call the callback to trigger
-    //currently all but VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT
+    createInfo.messageSeverity =  VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT; //the severity events that will call the callback to trigger
+    //currently all but VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT and VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT
     createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;    //the type of events which will cause the callback to be triggered (all enabled)
     createInfo.pfnUserCallback = debugCallback; //the actuall callback function
     createInfo.pUserData = nullptr; //The pUserData field in the callback --- allows you to pass your own data to the callback
@@ -270,7 +283,7 @@ void rendering::setupDebugMessenger() {
 
 void rendering::initVulkan() {
     createInstance();
-#ifndef NDEBUG
+#ifdef VALDIATION_LAYERS
     setupDebugMessenger();
 #endif
 }
@@ -290,10 +303,8 @@ void rendering::mainLoop() {
 
 void rendering::cleanup() {
     //destroying the debug messenger
-#ifndef NDEBUG
-    if constexpr (enable_validaion_layers) {
-        DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
-    }
+#ifdef VALDIATION_LAYERS
+    DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
 #endif
 
     //closing the instance
