@@ -6,9 +6,11 @@
 
 
 void Renderer::initVulkan() {
+    //instance must be created first because this describes all the features from vulkan that we need
     instance.create();
 #ifdef VALDIATION_LAYERS
-    //setting up the debug messenger requires the instance to be set
+    //setting up the debug messenger requires the instance to be set correct
+    // - need to specify additional vulkan features to use the custom messenger.
     debug_messenger.setup();
 #endif
 }
@@ -16,8 +18,9 @@ void Renderer::initVulkan() {
 
 void Renderer::cleanup() {
     //destroying the debug messenger
+    // - debug messenger must be destroyed before the instance because the debug messenger depends on the instance
 #ifdef VALDIATION_LAYERS
-debug_messenger.cleanup();
+    debug_messenger.cleanup();
 #endif
 
     //closing the instance
