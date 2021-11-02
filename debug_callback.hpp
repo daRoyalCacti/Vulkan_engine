@@ -31,9 +31,11 @@ struct DebugMessenger {
     //validation layer custom logger
     VkDebugUtilsMessengerEXT debugMessenger{};    //object that handles passing along debug messages to a callback
     DebugMessenger(const Instance& i) : instance(i) {}
-    const Instance& instance;
     void setup();
     inline void cleanup() const {DestroyDebugUtilsMessengerEXT(instance.get_instance(), debugMessenger, nullptr);}
+
+private:
+    const Instance& instance;
 };
 
 

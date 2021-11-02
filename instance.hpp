@@ -11,13 +11,6 @@
 
 //An instance is created by describing your application and any API extensions you will be using
 struct Instance {
-    VkInstance instance{};
-    const char* application_name = "Vulkan";
-    const unsigned application_version = VK_MAKE_VERSION(1, 0, 0);  //developer-supplied version number of the application
-    const char* engine_name = "no_engine";  //the name of the engine used to create the application (its default is NULL)
-    const unsigned engine_version = VK_MAKE_VERSION(1, 0, 0);   //the version number of the engine
-    const unsigned vulkan_version = VK_API_VERSION_1_0; //the highest version of vulkan that the application is designed to use
-
 #ifdef VALDIATION_LAYERS
     static constexpr std::array<const char*, 1> validation_layers = {
             "VK_LAYER_KHRONOS_validation"
@@ -41,6 +34,14 @@ struct Instance {
     [[nodiscard]] inline VkInstance const& get_instance() const {
         return instance;
     }
+
+private:
+    VkInstance instance{};
+    const char* application_name = "Vulkan";
+    const unsigned application_version = VK_MAKE_VERSION(1, 0, 0);  //developer-supplied version number of the application
+    const char* engine_name = "no_engine";  //the name of the engine used to create the application (its default is NULL)
+    const unsigned engine_version = VK_MAKE_VERSION(1, 0, 0);   //the version number of the engine
+    const unsigned vulkan_version = VK_API_VERSION_1_0; //the highest version of vulkan that the application is designed to use
 
 };
 
