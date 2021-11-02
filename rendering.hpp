@@ -13,7 +13,11 @@
 
 
 struct Rendering {
+#ifdef VALDIATION_LAYERS
+    Rendering() : debug_messenger(instance) {}
+#else
     Rendering() = default;
+#endif
     inline void initWindow() {window.makeWindow();}
     void initVulkan();
     void mainLoop();

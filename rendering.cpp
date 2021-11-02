@@ -3,14 +3,13 @@
 //
 
 #include "rendering.hpp"
-#include <stdexcept>
-#include <iostream>
 
 
 void Rendering::initVulkan() {
     instance.create();
 #ifdef VALDIATION_LAYERS
-    debug_messenger.setup(instance);
+    //setting up the debug messenger requires the instance to be set
+    debug_messenger.setup();
 #endif
 }
 

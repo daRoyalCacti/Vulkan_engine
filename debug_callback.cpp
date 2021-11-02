@@ -79,8 +79,7 @@ void getDebugCallbackSettings(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
     createInfo.pUserData = nullptr; //The pUserData field in the callback --- allows you to pass your own data to the callback
 }
 
-void DebugMessenger::setup(const Instance &i) {
-    instance = &i;
+void DebugMessenger::setup() {
     //filling a structure with details about the custom logger `debugCallback'
     VkDebugUtilsMessengerCreateInfoEXT createInfo{};
     getDebugCallbackSettings(createInfo);
@@ -88,7 +87,7 @@ void DebugMessenger::setup(const Instance &i) {
     //a function to load and call vkCreateDebugUtilsMessengerEXT
     // because this function comes from an extension, it is not loaded automatically
     //https://khronos.org/registry/vulkan/specs/1.2-extensions/man/html/vkCreateDebugUtilsMessengerEXT.html
-    const auto can_create_messenger = CreateDebugUtilsMessengerEXT(instance->get_instance(), &createInfo, nullptr, &debugMessenger);
+    const auto can_create_messenger = CreateDebugUtilsMessengerEXT(instance.get_instance(), &createInfo, nullptr, &debugMessenger);
     if (can_create_messenger != VK_SUCCESS) {
         throw std::runtime_error("failed to set up debug messenger!");
     }

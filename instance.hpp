@@ -11,7 +11,7 @@
 
 //An instance is created by describing your application and any API extensions you will be using
 struct Instance {
-    VkInstance instance;
+    VkInstance instance{};
     const char* application_name = "Vulkan";
     const unsigned application_version = VK_MAKE_VERSION(1, 0, 0);  //developer-supplied version number of the application
     const char* engine_name = "no_engine";  //the name of the engine used to create the application (its default is NULL)
