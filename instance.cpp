@@ -32,51 +32,51 @@ void Instance::create() {
     //checking if requested validation layers are supported
 
 #ifdef VALDIATION_LAYERS
-const bool validation_layers_supported = checkValidationLayerSupport();
-if (!validation_layers_supported) {
-    throw std::runtime_error("the validation layers requested are not supported");
-}
+    const bool validation_layers_supported = checkValidationLayerSupport();
+    if (!validation_layers_supported) {
+        throw std::runtime_error("the validation layers requested are not supported");
+    }
 #endif
 
 
 
 
-//telling the vulkan driver which global extensions and validation layers we want to use.
-//https://www.khronos.org/registry/vulkan/ has a list of all extensions
-VkInstanceCreateInfo createInfo{};  //https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkInstanceCreateInfo.html
-createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;  //sType must be VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO
-createInfo.pApplicationInfo = &appInfo;
-//extensions
-createInfo.enabledExtensionCount = extensions.size();    //number of global extensions to enable
-createInfo.ppEnabledExtensionNames = extensions.data();       //pointer to an array of strings containing the names of extensions to enable
-//validation layers
+    //telling the vulkan driver which global extensions and validation layers we want to use.
+    //https://www.khronos.org/registry/vulkan/ has a list of all extensions
+    VkInstanceCreateInfo createInfo{};  //https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkInstanceCreateInfo.html
+    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;  //sType must be VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO
+    createInfo.pApplicationInfo = &appInfo;
+    //extensions
+    createInfo.enabledExtensionCount = extensions.size();    //number of global extensions to enable
+    createInfo.ppEnabledExtensionNames = extensions.data();       //pointer to an array of strings containing the names of extensions to enable
+    //validation layers
 
-#ifdef VALDIATION_LAYERS
-createInfo.enabledLayerCount = validation_layers.size();       //number of global layers to enable (validation layers)
-createInfo.ppEnabledLayerNames = validation_layers.data();      //the list of the validation layers to use
+    #ifdef VALDIATION_LAYERS
+    createInfo.enabledLayerCount = validation_layers.size();       //number of global layers to enable (validation layers)
+    createInfo.ppEnabledLayerNames = validation_layers.data();      //the list of the validation layers to use
 
-//the regular validation debug caller requires an instance
-//as such it is created after the instance and destroyed before it
-//so now we pass the debug caller in here
-VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-getDebugCallbackSettings(debugCreateInfo);
+    //the regular validation debug caller requires an instance
+    //as such it is created after the instance and destroyed before it
+    //so now we pass the debug caller in here
+    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+    getDebugCallbackSettings(debugCreateInfo);
 
-//actually setting the value in the struct
-createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
-#else
-createInfo.enabledLayerCount = 0;       //number of global layers to enable (validation layers)
-createInfo.pNext = nullptr;
-#endif
-
-
+    //actually setting the value in the struct
+    createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
+    #else
+    createInfo.enabledLayerCount = 0;       //number of global layers to enable (validation layers)
+    createInfo.pNext = nullptr;
+    #endif
 
 
-//actually creating the instance
-//https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/vkCreateInstance.html
-const auto create_instance_err = vkCreateInstance(&createInfo, nullptr, &instance); //nullptr is for custom memory allocation
-if (create_instance_err != VK_SUCCESS) {
-    throw std::runtime_error("failed to create instance");
-}
+
+
+    //actually creating the instance
+    //https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/vkCreateInstance.html
+    const auto create_instance_err = vkCreateInstance(&createInfo, nullptr, &instance); //nullptr is for custom memory allocation
+    if (create_instance_err != VK_SUCCESS) {
+        throw std::runtime_error("failed to create instance");
+    }
 
 }
 
@@ -161,7 +161,7 @@ std::vector<const char*> Instance::getRequiredExtensions() {
     //extensions needed for validation layers
     //we need VK_EXT_debug_utils to use the custom debug messengers
 #ifdef VALDIATION_LAYERS
-extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);    //VK_EXT_DEBUG_UTILS_EXTENSION_NAME is a macro for "VK_EXT_debug_utils". https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VK_EXT_debug_utils.html
+    extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);    //VK_EXT_DEBUG_UTILS_EXTENSION_NAME is a macro for "VK_EXT_debug_utils". https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VK_EXT_debug_utils.html
 #endif
 
 
