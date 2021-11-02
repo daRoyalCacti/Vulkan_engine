@@ -19,7 +19,6 @@ struct Renderer {
     Renderer(Window& w) : window(w) {};
 #endif
     void initVulkan();
-    void mainLoop();
     void cleanup();
 
 private:

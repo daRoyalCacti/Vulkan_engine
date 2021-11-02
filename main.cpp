@@ -27,7 +27,12 @@ int main() {
     }
 
     try {
-        app.mainLoop();
+
+        //having the main loop run units the (x) is pressed
+        while (!glfwWindowShouldClose(window.get_window())) {
+            glfwPollEvents();   //checking for events (like (x) being pressed)
+        }
+
     }catch (const std::exception& e) {
         std::cerr << "Vulkan mainloop failed\n";
         std::cerr << e.what() << "\n";

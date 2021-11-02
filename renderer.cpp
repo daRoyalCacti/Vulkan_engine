@@ -14,13 +14,6 @@ void Renderer::initVulkan() {
 }
 
 
-void Renderer::mainLoop() {
-    //having the main loop run units the (x) is pressed
-    while (!glfwWindowShouldClose(window.get_window())) {
-        glfwPollEvents();   //checking for events (like (x) being pressed)
-    }
-}
-
 void Renderer::cleanup() {
     //destroying the debug messenger
 #ifdef VALDIATION_LAYERS
