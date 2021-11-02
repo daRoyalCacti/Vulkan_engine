@@ -7,10 +7,11 @@
 #define EXIT_SUCCESS 0
 
 int main() {
-    Renderer app;
+    Window window;
+    Renderer app(window);
 
     try {
-        app.initWindow();
+        window.makeWindow();
     } catch (const std::exception& e) {
         std::cerr << "Initiating window failed\n";
         std::cerr << e.what() << "\n";
@@ -35,6 +36,7 @@ int main() {
 
     try {
         app.cleanup();
+        window.cleanup();
     }catch (const std::exception& e) {
         std::cerr << "Vulkan cleanup failed\n";
         std::cerr << e.what() << "\n";

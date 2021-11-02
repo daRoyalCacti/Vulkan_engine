@@ -14,18 +14,17 @@
 
 struct Renderer {
 #ifdef VALDIATION_LAYERS
-    Renderer() : debug_messenger(instance) {}
+    explicit Renderer(Window& w) : window(w), debug_messenger(instance) {}
 #else
-    Renderer() = default;
+    Renderer(Window& w) : window(w) {};
 #endif
-    inline void initWindow() {window.makeWindow();}
     void initVulkan();
     void mainLoop();
     void cleanup();
 
 private:
     //variables for the window
-    Window window;
+    Window& window;
 
     //An instance is created by describing your application and any API extensions you will be using
     Instance instance;

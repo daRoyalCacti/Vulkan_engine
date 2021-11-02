@@ -29,8 +29,4 @@ debug_messenger.cleanup();
 
     //closing the instance
     instance.cleanup();
-
-    //closing the window
-    window.cleanup();
-
 }
