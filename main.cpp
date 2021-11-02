@@ -1,4 +1,4 @@
-#include "rendering.hpp"
+#include "renderer.hpp"
 
 #include <iostream>
 #include <stdexcept>
@@ -7,12 +7,12 @@
 #define EXIT_SUCCESS 0
 
 int main() {
-    Rendering app;
+    Renderer app;
 
     try {
         app.initWindow();
     } catch (const std::exception& e) {
-        std::cerr << "Initiating windown failed\n";
+        std::cerr << "Initiating window failed\n";
         std::cerr << e.what() << "\n";
         return EXIT_FALURE;
     }

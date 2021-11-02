@@ -2,8 +2,8 @@
 // Created by jacob on 31/10/21.
 //
 
-#ifndef VULKAN_ENGINE_RENDERING_HPP
-#define VULKAN_ENGINE_RENDERING_HPP
+#ifndef VULKAN_ENGINE_RENDERER_HPP
+#define VULKAN_ENGINE_RENDERER_HPP
 
 #include <array>
 #include <vector>
@@ -12,11 +12,11 @@
 #include "instance.hpp"
 
 
-struct Rendering {
+struct Renderer {
 #ifdef VALDIATION_LAYERS
-    Rendering() : debug_messenger(instance) {}
+    Renderer() : debug_messenger(instance) {}
 #else
-    Rendering() = default;
+    Renderer() = default;
 #endif
     inline void initWindow() {window.makeWindow();}
     void initVulkan();
@@ -44,4 +44,4 @@ private:
 };
 
 
-#endif //VULKAN_ENGINE_RENDERING_HPP
+#endif //VULKAN_ENGINE_RENDERER_HPP

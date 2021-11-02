@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release")
 
 
-add_executable(Vulkan_engine main.cpp rendering.cpp rendering.hpp window.cpp window.hpp instance.cpp instance.hpp debug_callback.cpp debug_callback.hpp)
+add_executable(Vulkan_engine main.cpp renderer.cpp renderer.hpp window.cpp window.hpp instance.cpp instance.hpp debug_callback.cpp debug_callback.hpp)
 
 target_link_libraries(Vulkan_engine glfw)
 target_link_libraries(Vulkan_engine Vulkan::Vulkan)

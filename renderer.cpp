@@ -2,10 +2,10 @@
 // Created by jacob on 31/10/21.
 //
 
-#include "rendering.hpp"
+#include "renderer.hpp"
 
 
-void Rendering::initVulkan() {
+void Renderer::initVulkan() {
     instance.create();
 #ifdef VALDIATION_LAYERS
     //setting up the debug messenger requires the instance to be set
@@ -14,14 +14,14 @@ void Rendering::initVulkan() {
 }
 
 
-void Rendering::mainLoop() {
+void Renderer::mainLoop() {
     //having the main loop run units the (x) is pressed
     while (!glfwWindowShouldClose(window.get_window())) {
         glfwPollEvents();   //checking for events (like (x) being pressed)
     }
 }
 
-void Rendering::cleanup() {
+void Renderer::cleanup() {
     //destroying the debug messenger
 #ifdef VALDIATION_LAYERS
 debug_messenger.cleanup();
