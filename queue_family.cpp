@@ -2,11 +2,11 @@
 // Created by jacob on 3/11/21.
 //
 
-#include "queue_faimily.hpp"
+#include "queue_family.hpp"
 
 #include <vector>
 
-void QueueFaimily::findQueueFamilies(VkPhysicalDevice device) {
+void QueueFamily::findQueueFamilies(VkPhysicalDevice device) {
     //finding the queues
     uint32_t queue_family_count = 0;    //the number of queues available
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, nullptr); //querying the number of queues

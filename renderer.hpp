@@ -11,13 +11,13 @@
 #include "debug_callback.hpp"
 #include "instance.hpp"
 #include "physical_device.hpp"
-
+#include "logical_device.hpp"
 
 struct Renderer {
 #ifdef VALDIATION_LAYERS
-    explicit Renderer(Window& w) : window(w), debug_messenger(instance), physical_device(instance) {}
+    explicit Renderer(Window& w) : window(w), debug_messenger(instance), physical_device(instance), logical_device(physical_device) {}
 #else
-    Renderer(Window& w) : window(w) {};
+    explicit Renderer(Window& w) : window(w), physical_device(instance), logical_device(physical_device) {};
 #endif
     void initVulkan();
     void cleanup();
@@ -36,6 +36,9 @@ private:
 
     //The graphics card to use
     PhysicalDevice physical_device;
+
+    //The interface to the graphics card
+    LogicalDevice logical_device;
 
 };
 

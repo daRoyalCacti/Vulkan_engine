@@ -17,6 +17,7 @@ struct PhysicalDevice {
     // - (there are more requirements than those just set in the instance)
     static unsigned rateDeviceSuitability(VkPhysicalDevice device);
     static bool isDeviceSuitable(VkPhysicalDevice device);
+    VkPhysicalDevice& get_device() {return physicalDevice;}
 
 private:
     Instance & instance;

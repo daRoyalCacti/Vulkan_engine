@@ -16,11 +16,11 @@ struct Instance {
             "VK_LAYER_KHRONOS_validation"
     };
     //checking that all requested validation layers are available
-    bool checkValidationLayerSupport();
+    static bool checkValidationLayerSupport();
 #endif
 
     //check that extensions requested are indeed supported
-    void checkExtensionSupport(const std::vector<const char*> &requried_extensions);
+    static void checkExtensionSupport(const std::vector<const char*> &requried_extensions);
 
     //getting the required extensions
     // currently those needed by GLFW and by validation layers

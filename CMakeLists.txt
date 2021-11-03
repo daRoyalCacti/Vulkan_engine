@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release")
 
 
-add_executable(Vulkan_engine main.cpp renderer.cpp renderer.hpp window.cpp window.hpp instance.cpp instance.hpp debug_callback.cpp debug_callback.hpp physical_device.cpp physical_device.hpp queue_faimily.cpp queue_faimily.hpp)
+add_executable(Vulkan_engine main.cpp renderer.cpp renderer.hpp window.cpp window.hpp instance.cpp instance.hpp debug_callback.cpp debug_callback.hpp physical_device.cpp physical_device.hpp queue_family.cpp queue_family.hpp logical_device.cpp logical_device.hpp)
 
 target_link_libraries(Vulkan_engine glfw)
 target_link_libraries(Vulkan_engine Vulkan::Vulkan)

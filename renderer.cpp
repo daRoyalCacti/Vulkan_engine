@@ -18,10 +18,16 @@ void Renderer::initVulkan() {
     // 1. supports the features we need
     // 2. would give the best performance
     physical_device.setup();
+
+    //setting up the interface to the physical device
+    logical_device.setup();
 }
 
 
 void Renderer::cleanup() {
+    //destroying the logical device (physical device does not need to be destroyed)
+    logical_device.cleanup();
+
     //destroying the debug messenger
     // - debug messenger must be destroyed before the instance because the debug messenger depends on the instance
 #ifdef VALDIATION_LAYERS

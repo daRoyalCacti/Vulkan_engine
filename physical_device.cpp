@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <map>
 
-#include "queue_faimily.hpp"
+#include "queue_family.hpp"
 
 void PhysicalDevice::setup() {
     //finding the number of device that can be used with our instance
@@ -82,7 +82,7 @@ unsigned PhysicalDevice::rateDeviceSuitability(VkPhysicalDevice device) {
 }
 
 bool PhysicalDevice::isDeviceSuitable(VkPhysicalDevice device) {
-    QueueFaimily queue_family;
+    QueueFamily queue_family;
     queue_family.findQueueFamilies(device);
 
     return queue_family.has_graphics();
