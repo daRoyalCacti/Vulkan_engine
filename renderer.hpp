@@ -10,11 +10,12 @@
 #include "window.hpp"
 #include "debug_callback.hpp"
 #include "instance.hpp"
+#include "physical_device.hpp"
 
 
 struct Renderer {
 #ifdef VALDIATION_LAYERS
-    explicit Renderer(Window& w) : window(w), debug_messenger(instance) {}
+    explicit Renderer(Window& w) : window(w), debug_messenger(instance), physical_device(instance) {}
 #else
     Renderer(Window& w) : window(w) {};
 #endif
@@ -33,11 +34,8 @@ private:
     DebugMessenger debug_messenger;    //custom messenger for the validation layers
 #endif
 
-
-
-
-
-
+    //The graphics card to use
+    PhysicalDevice physical_device;
 
 };
 

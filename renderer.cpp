@@ -13,6 +13,11 @@ void Renderer::initVulkan() {
     // - need to specify additional vulkan features to use the custom messenger.
     debug_messenger.setup();
 #endif
+
+    //selecting the graphics card that
+    // 1. supports the features we need
+    // 2. would give the best performance
+    physical_device.setup();
 }
 
 
