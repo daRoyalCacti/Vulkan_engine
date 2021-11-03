@@ -16,10 +16,13 @@ struct QueueFamily {
     //it is std::optional because we need some way to encode if the queue family cannot be found
     // - cannot just set the value to -1 (or something) because the index can be any unsigned value
     std::optional<unsigned> graphicsFamily;
+    //storing the index of the queue used for presentation
+    std::optional<unsigned> presentFamily;
 
-    void findQueueFamilies(VkPhysicalDevice device);
+    void findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
 
     [[nodiscard]] bool has_graphics() const {return graphicsFamily.has_value();}
+    [[nodiscard]] bool has_present() const {return presentFamily.has_value();}
 
 };
 

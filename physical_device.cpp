@@ -83,7 +83,7 @@ unsigned PhysicalDevice::rateDeviceSuitability(VkPhysicalDevice device) {
 
 bool PhysicalDevice::isDeviceSuitable(VkPhysicalDevice device) {
     QueueFamily queue_family;
-    queue_family.findQueueFamilies(device);
+    queue_family.findQueueFamilies(device, surface.get_surface());
 
-    return queue_family.has_graphics();
+    return queue_family.has_graphics() && queue_family.has_present();
 }

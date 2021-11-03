@@ -15,6 +15,7 @@ struct LogicalDevice {
     PhysicalDevice& physical_device;
 
     VkQueue graphics_queue{};   //handle to the graphics queue --- used to request graphics based commands
+    VkQueue present_queue{};   //handle to the present queue --- used to request presenting based commands
 
     explicit LogicalDevice(PhysicalDevice & pd) : physical_device(pd) {}
 

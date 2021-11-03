@@ -5,31 +5,45 @@
 #include "logical_device.hpp"
 #include "queue_family.hpp"
 #include <stdexcept>
+#include <set>
 
 void LogicalDevice::setup() {
     //first getting all the queues indices
     QueueFamily queue_family;
-    queue_family.findQueueFamilies(physical_device.get_device());
+    queue_family.findQueueFamilies(physical_device.get_device(), physical_device.surface.get_surface());
 
     float queue_priority = 1.0f; //the priority of queues to influence scheduling (not really needed since we only have 1 queue)
 
+
+    //the array to hold to creation info for all the queues we need
+    std::vector<VkDeviceQueueCreateInfo> queueCreateInfo;
+
+    //the queue families to create queues for
+    //can only create queues for unique queue indices (hence the std:set)
+    std::set<unsigned> uniqueQueueFamilies = {queue_family.graphicsFamily.value(), queue_family.presentFamily.value()};
+
     //generating the structure to hold all the queues we want
-    VkDeviceQueueCreateInfo queue_create_info{};
-    queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO; //sType must be VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO
-    queue_create_info.queueFamilyIndex = queue_family.graphicsFamily.value(); //the index of the queue family to create the queue on
-    queue_create_info.queueCount = 1; //the number of queses to create
-    queue_create_info.pQueuePriorities = &queue_priority;   //https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#devsandqueues-priority
+    // - the queues we want is specified in uniqueQueueFamilies
+    VkDeviceQueueCreateInfo qCreateInfo{};
+    for (auto & queueFamily : uniqueQueueFamilies) {
+        qCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO; //sType must be VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO
+        qCreateInfo.queueFamilyIndex = queueFamily; //the index of the queue family to create the queue on
+        qCreateInfo.queueCount = 1; //the number of queses to create
+        qCreateInfo.pQueuePriorities = &queue_priority;   //https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#devsandqueues-priority
+        queueCreateInfo.push_back(qCreateInfo);
+    }
 
 
     //setting the device features that we'll be needing (e.g. geometry shader)
     // - don't required anything special right now so just leaving this blank
     VkPhysicalDeviceFeatures required_device_features{};
 
+
     //actually creating the logical device
     VkDeviceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;    //sType must be VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO
-    createInfo.pQueueCreateInfos = &queue_create_info;  //array describing the queues that are to be created
-    createInfo.queueCreateInfoCount = 1;    //the size of the pQueueCreateInfos array
+    createInfo.pQueueCreateInfos = queueCreateInfo.data();  //array describing the queues that are to be created
+    createInfo.queueCreateInfoCount = queueCreateInfo.size();    //the size of the pQueueCreateInfos array
     createInfo.pEnabledFeatures = &required_device_features;    //contains all of the features to be enabled
     createInfo.enabledExtensionCount = 0;   //the number of device extensions to enable. not enabling any device extensions
     createInfo.pEnabledFeatures = nullptr; //structure containing the device features to enable -- https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkPhysicalDeviceFeatures.html
@@ -43,6 +57,7 @@ void LogicalDevice::setup() {
 
     //create the handle to the queues requested
     vkGetDeviceQueue(device, queue_family.graphicsFamily.value(), 0, &graphics_queue);
+    vkGetDeviceQueue(device, queue_family.presentFamily.value(), 0, &present_queue);
 }
 
 void LogicalDevice::cleanup() const {

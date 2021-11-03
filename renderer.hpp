@@ -12,12 +12,15 @@
 #include "instance.hpp"
 #include "physical_device.hpp"
 #include "logical_device.hpp"
+#include "surface.hpp"
 
 struct Renderer {
 #ifdef VALDIATION_LAYERS
-    explicit Renderer(Window& w) : window(w), debug_messenger(instance), physical_device(instance), logical_device(physical_device) {}
+    explicit Renderer(Window& w) : window(w), debug_messenger(instance), logical_device(physical_device),
+                surface(window, instance), physical_device(instance, surface) {}
 #else
-    explicit Renderer(Window& w) : window(w), physical_device(instance), logical_device(physical_device) {};
+    explicit Renderer(Window& w) : window(w), logical_device(physical_device),
+        surface(window, instance), physical_device(instance, surface) {}
 #endif
     void initVulkan();
     void cleanup();
@@ -39,6 +42,9 @@ private:
 
     //The interface to the graphics card
     LogicalDevice logical_device;
+
+    //The surface to render to --- current the GLFW window
+    Surface surface;
 
 };
 

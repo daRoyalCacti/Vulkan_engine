@@ -14,6 +14,10 @@ void Renderer::initVulkan() {
     debug_messenger.setup();
 #endif
 
+
+    //setting up the surface to render to
+    surface.setup();
+
     //selecting the graphics card that
     // 1. supports the features we need
     // 2. would give the best performance
@@ -21,6 +25,7 @@ void Renderer::initVulkan() {
 
     //setting up the interface to the physical device
     logical_device.setup();
+
 }
 
 
@@ -33,6 +38,9 @@ void Renderer::cleanup() {
 #ifdef VALDIATION_LAYERS
     debug_messenger.cleanup();
 #endif
+
+    //closing the surface
+    surface.cleanup();
 
     //closing the instance
     instance.cleanup();
