@@ -22,6 +22,9 @@ struct Instance {
     //check that extensions requested are indeed supported
     static void checkExtensionSupport(const std::vector<const char*> &requried_extensions);
 
+    //https://www.khronos.org/registry/vulkan/ has a list of all extensions
+    static constexpr std::array<const char*, 0> instance_extensions = {};
+
     //getting the required extensions
     // currently those needed by GLFW and by validation layers
     static std::vector<const char*> getRequiredExtensions();

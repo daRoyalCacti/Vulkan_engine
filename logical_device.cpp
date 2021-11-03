@@ -45,8 +45,8 @@ void LogicalDevice::setup() {
     createInfo.pQueueCreateInfos = queueCreateInfo.data();  //array describing the queues that are to be created
     createInfo.queueCreateInfoCount = queueCreateInfo.size();    //the size of the pQueueCreateInfos array
     createInfo.pEnabledFeatures = &required_device_features;    //contains all of the features to be enabled
-    createInfo.enabledExtensionCount = 0;   //the number of device extensions to enable. not enabling any device extensions
-    createInfo.pEnabledFeatures = nullptr; //structure containing the device features to enable -- https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkPhysicalDeviceFeatures.html
+    createInfo.enabledExtensionCount = PhysicalDevice::deviceExtensions.size();   //the number of device extensions to enable
+    createInfo.ppEnabledExtensionNames = PhysicalDevice::deviceExtensions.data(); //the names of the extensions to enable -- https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkPhysicalDeviceFeatures.html
 
 
     //actually create the logical device

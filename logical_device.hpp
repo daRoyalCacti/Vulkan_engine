@@ -18,6 +18,7 @@ struct LogicalDevice {
     VkQueue present_queue{};   //handle to the present queue --- used to request presenting based commands
 
     explicit LogicalDevice(PhysicalDevice & pd) : physical_device(pd) {}
+    [[nodiscard]] VkDevice get_device() const {return device;}
 
     void setup();
     void cleanup() const;

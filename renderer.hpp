@@ -13,14 +13,15 @@
 #include "physical_device.hpp"
 #include "logical_device.hpp"
 #include "surface.hpp"
+#include "swap_chain.hpp"
 
 struct Renderer {
 #ifdef VALDIATION_LAYERS
     explicit Renderer(Window& w) : window(w), debug_messenger(instance), logical_device(physical_device),
-                surface(window, instance), physical_device(instance, surface) {}
+            surface(window, instance), physical_device(instance, surface), swap_chain(window, logical_device, surface) {}
 #else
     explicit Renderer(Window& w) : window(w), logical_device(physical_device),
-        surface(window, instance), physical_device(instance, surface) {}
+                surface(window, instance), physical_device(instance, surface) , swap_chain(window, logical_device, surface) {}
 #endif
     void initVulkan();
     void cleanup();
@@ -45,6 +46,9 @@ private:
 
     //The surface to render to --- current the GLFW window
     Surface surface;
+
+    //The frame buffers
+    SwapChain swap_chain;
 
 };
 

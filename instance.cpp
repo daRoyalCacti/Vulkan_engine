@@ -149,6 +149,7 @@ bool Instance::checkValidationLayerSupport() {
 }
 #endif
 
+//https://www.khronos.org/registry/vulkan/ has a list of all extensions
 std::vector<const char*> Instance::getRequiredExtensions() {
     //first getting the required extensions for GLFW to work
     unsigned glfw_extension_count = 0;
@@ -163,6 +164,10 @@ std::vector<const char*> Instance::getRequiredExtensions() {
 #ifdef VALDIATION_LAYERS
     extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);    //VK_EXT_DEBUG_UTILS_EXTENSION_NAME is a macro for "VK_EXT_debug_utils". https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VK_EXT_debug_utils.html
 #endif
+    for (const auto ext : instance_extensions) {
+        extensions.push_back(ext);
+    }
+
 
 
 return extensions;

@@ -5,8 +5,10 @@
 #include "physical_device.hpp"
 #include <stdexcept>
 #include <map>
+#include <set>
 
 #include "queue_family.hpp"
+#include "swap_chain_details.hpp"
 
 void PhysicalDevice::setup() {
     //finding the number of device that can be used with our instance
@@ -84,6 +86,38 @@ unsigned PhysicalDevice::rateDeviceSuitability(VkPhysicalDevice device) {
 bool PhysicalDevice::isDeviceSuitable(VkPhysicalDevice device) {
     QueueFamily queue_family;
     queue_family.findQueueFamilies(device, surface.get_surface());
+    const auto queue_family_good = queue_family.has_graphics() && queue_family.has_present();
 
-    return queue_family.has_graphics() && queue_family.has_present();
+    const auto extensions_supported = checkDeviceExtensionSupport(device);
+
+    //checking if there is an available swapchain to use
+    bool swap_chain_good = false;
+    if (extensions_supported) {
+        SwapChainDetails swap_chain_details;
+        swap_chain_details.query_swap_chain_support(device, surface.get_surface());
+        swap_chain_good = true;
+    }
+
+    return extensions_supported && queue_family_good && swap_chain_good;
+}
+
+bool PhysicalDevice::checkDeviceExtensionSupport(VkPhysicalDevice device) {
+    //finding all the extensions supported
+    uint32_t extensionCount;    //the number of extensions supported
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);    //querying the number of supported extensions
+
+    std::vector<VkExtensionProperties> availableExtensions(extensionCount); //array to hold all the supported extensions. VkExtensionProperties holds the name of the extension as well as its version
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data()); //querying the supported extensions
+
+    //checking to make sure add required extensions are supported
+    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end()); //create a copy of the extensions to then removed elements from
+
+    //removing elements from the required extensions until all supported extensions are checked
+    for (const auto& ext : availableExtensions) {
+        requiredExtensions.erase(ext.extensionName);    //removing the extension based on the extensions name (do not care about the extension version)
+    }
+
+    const bool all_supported = requiredExtensions.empty();
+
+    return all_supported;
 }

@@ -12,11 +12,16 @@ struct PhysicalDevice {
     explicit PhysicalDevice(Instance &i, Surface &s) : instance(i), surface(s) {}
     void setup();
 
+    //device extensions required
+    // - https://www.khronos.org/registry/vulkan/ has a list of extensions
+    static constexpr std::array<const char*, 1> deviceExtensions = {"VK_KHR_swapchain"};
+
     //check the suitability of the graphics cards
     // - need to check that they meet the requirements for the program
     // - (there are more requirements than those just set in the instance)
     unsigned rateDeviceSuitability(VkPhysicalDevice device);
     bool isDeviceSuitable(VkPhysicalDevice device);
+    static bool checkDeviceExtensionSupport(VkPhysicalDevice device);
     VkPhysicalDevice& get_device() {return physicalDevice;}
 
     Surface & surface;

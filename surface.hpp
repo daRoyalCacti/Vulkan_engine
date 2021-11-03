@@ -9,6 +9,8 @@
 #include "instance.hpp"
 #include "window.hpp"
 
+//surface is an abstract layer for what is rendered to
+// - the GPU renders to these surfaces
 struct Surface {
     Instance &instance;
     Window &window;

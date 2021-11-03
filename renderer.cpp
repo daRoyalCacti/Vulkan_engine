@@ -26,10 +26,16 @@ void Renderer::initVulkan() {
     //setting up the interface to the physical device
     logical_device.setup();
 
+    //setting up the framebuffers
+    swap_chain.setup();
+
 }
 
 
 void Renderer::cleanup() {
+    //destroying the framebuffers
+    swap_chain.cleanup();
+
     //destroying the logical device (physical device does not need to be destroyed)
     logical_device.cleanup();
 
