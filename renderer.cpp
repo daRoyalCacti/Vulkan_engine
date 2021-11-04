@@ -32,10 +32,16 @@ void Renderer::initVulkan() {
     //creating views into the swapchain images
     image_views.setup();
 
+    //creating the graphics pipeline
+    graphics_pipeline.setup();
+
 }
 
 
 void Renderer::cleanup() {
+    //destroying the graphics pipeline
+    graphics_pipeline.cleanup();
+
     //destroying views into the swapchain images
     image_views.cleanup();
 
