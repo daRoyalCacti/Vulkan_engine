@@ -14,14 +14,17 @@
 #include "logical_device.hpp"
 #include "surface.hpp"
 #include "swap_chain.hpp"
+#include "image_views.hpp"
 
 struct Renderer {
 #ifdef VALDIATION_LAYERS
     explicit Renderer(Window& w) : window(w), debug_messenger(instance), logical_device(physical_device),
-            surface(window, instance), physical_device(instance, surface), swap_chain(window, logical_device, surface) {}
+            surface(window, instance), physical_device(instance, surface), swap_chain(window, logical_device, surface),
+            image_views(swap_chain, logical_device){}
 #else
     explicit Renderer(Window& w) : window(w), logical_device(physical_device),
-                surface(window, instance), physical_device(instance, surface) , swap_chain(window, logical_device, surface) {}
+        surface(window, instance), physical_device(instance, surface) , swap_chain(window, logical_device, surface) ,
+        image_views(swap_chain, logical_device){}
 #endif
     void initVulkan();
     void cleanup();
@@ -49,6 +52,9 @@ private:
 
     //The frame buffers
     SwapChain swap_chain;
+
+    //The views into the swapchain images (needed for rendering)
+    ImageViews image_views;
 
 };
 

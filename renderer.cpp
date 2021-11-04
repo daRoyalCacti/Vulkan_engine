@@ -29,10 +29,16 @@ void Renderer::initVulkan() {
     //setting up the framebuffers
     swap_chain.setup();
 
+    //creating views into the swapchain images
+    image_views.setup();
+
 }
 
 
 void Renderer::cleanup() {
+    //destroying views into the swapchain images
+    image_views.cleanup();
+
     //destroying the framebuffers
     swap_chain.cleanup();
 
