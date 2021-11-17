@@ -6,6 +6,7 @@
 #define VULKAN_ENGINE_INSTANCE_HPP
 
 #include <GLFW/glfw3.h>
+#include <vulkan/vulkan.h>
 #include <array>
 #include <vector>
 

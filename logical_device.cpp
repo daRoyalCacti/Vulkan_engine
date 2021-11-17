@@ -34,17 +34,12 @@ void LogicalDevice::setup() {
     }
 
 
-    //setting the device features that we'll be needing (e.g. geometry shader)
-    // - don't required anything special right now so just leaving this blank
-    VkPhysicalDeviceFeatures required_device_features{};
-
-
     //actually creating the logical device
     VkDeviceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;    //sType must be VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO
     createInfo.pQueueCreateInfos = queueCreateInfo.data();  //array describing the queues that are to be created
     createInfo.queueCreateInfoCount = queueCreateInfo.size();    //the size of the pQueueCreateInfos array
-    createInfo.pEnabledFeatures = &required_device_features;    //contains all of the features to be enabled
+    createInfo.pEnabledFeatures = &required_device_features;    //contains all of the features to be enabled -- array defined in main struct
     createInfo.enabledExtensionCount = PhysicalDevice::deviceExtensions.size();   //the number of device extensions to enable
     createInfo.ppEnabledExtensionNames = PhysicalDevice::deviceExtensions.data(); //the names of the extensions to enable -- https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkPhysicalDeviceFeatures.html
 

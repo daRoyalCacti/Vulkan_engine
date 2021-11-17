@@ -8,7 +8,7 @@
 #include <vector>
 #include <string_view>
 #include <vulkan/vulkan.h>
-#include "logical_device.hpp"
+#include "../logical_device.hpp"
 
 struct Shader {
     explicit Shader(LogicalDevice & d) : device(d) {}
@@ -22,8 +22,8 @@ struct Shader {
 
     void setup(const std::string_view& vert_file, const std::string_view& frag_file);
 
-    VkPipelineShaderStageCreateInfo get_vertex_pipeline_stage() const;
-    VkPipelineShaderStageCreateInfo get_frag_pipeline_stage() const;
+    [[nodiscard]] VkPipelineShaderStageCreateInfo get_vertex_pipeline_stage() const;
+    [[nodiscard]] VkPipelineShaderStageCreateInfo get_frag_pipeline_stage() const;
 
     void cleanup();
 

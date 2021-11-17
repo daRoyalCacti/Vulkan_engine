@@ -21,6 +21,7 @@ void Renderer::initVulkan() {
     //selecting the graphics card that
     // 1. supports the features we need
     // 2. would give the best performance
+    //must be done before creating the logical device
     physical_device.setup();
 
     //setting up the interface to the physical device
@@ -32,6 +33,9 @@ void Renderer::initVulkan() {
     //creating views into the swapchain images
     image_views.setup();
 
+    //creating the render pass -- must be done before creating the graphics pipeline
+    render_pass.setup();
+
     //creating the graphics pipeline
     graphics_pipeline.setup();
 
@@ -41,6 +45,9 @@ void Renderer::initVulkan() {
 void Renderer::cleanup() {
     //destroying the graphics pipeline
     graphics_pipeline.cleanup();
+
+    //destorying the render pass
+    render_pass.cleanup();
 
     //destroying views into the swapchain images
     image_views.cleanup();
