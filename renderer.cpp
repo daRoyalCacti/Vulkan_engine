@@ -39,10 +39,16 @@ void Renderer::initVulkan() {
     //creating the graphics pipeline
     graphics_pipeline.setup();
 
+    //creating the framebufers
+    framebuffers.setup();
+
 }
 
 
 void Renderer::cleanup() {
+    //destroying the framebuffers
+    framebuffers.cleanup();
+
     //destroying the graphics pipeline
     graphics_pipeline.cleanup();
 

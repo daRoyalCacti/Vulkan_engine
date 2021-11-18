@@ -16,17 +16,19 @@
 #include "swap_chain.hpp"
 #include "image_views.hpp"
 #include "graphics_pipeline.hpp"
+#include "framebuffers.hpp"
 
 struct Renderer {
 #ifdef VALDIATION_LAYERS
     explicit Renderer(Window& w) : window(w), debug_messenger(instance), logical_device(physical_device),
             surface(window, instance), physical_device(instance, surface), swap_chain(window, logical_device, surface),
             image_views(swap_chain, logical_device), graphics_pipeline(logical_device, swap_chain, render_pass),
-                                   render_pass(logical_device, swap_chain){}
+                                   render_pass(logical_device, swap_chain), framebuffers(logical_device, image_views, render_pass, swap_chain){}
 #else
     explicit Renderer(Window& w) : window(w), logical_device(physical_device),
         surface(window, instance), physical_device(instance, surface) , swap_chain(window, logical_device, surface) ,
-        image_views(swap_chain, logical_device), graphics_pipeline(logical_device, swap_chain, render_pass), render_pass(logical_device, swap_chain){}
+        image_views(swap_chain, logical_device), graphics_pipeline(logical_device, swap_chain, render_pass), render_pass(logical_device, swap_chain),
+        framebuffers(logical_device, image_views, render_pass, swap_chain){}
 #endif
     void initVulkan();
     void cleanup();
@@ -63,6 +65,9 @@ private:
 
     //render pass -- how the framebuffer is written to
     RenderPass render_pass;
+
+    //framebuffers -- stored the rendered images in the swap chain
+    Framebuffers framebuffers;
 };
 
 
