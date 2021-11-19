@@ -8,10 +8,6 @@
 #include <set>
 
 void LogicalDevice::setup() {
-    //first getting all the queues indices
-    QueueFamily queue_family;
-    queue_family.findQueueFamilies(physical_device.get_device(), physical_device.surface.get_surface());
-
     float queue_priority = 1.0f; //the priority of queues to influence scheduling (not really needed since we only have 1 queue)
 
 

@@ -27,11 +27,8 @@ void SwapChain::setup() {
         no_images = swap_chain_details.capabilities.maxImageCount;
     }
 
-    //finding the queue indices
-    QueueFamily queue_indices;
-    queue_indices.findQueueFamilies(device.physical_device.get_device(), surface.get_surface());
     //putting the queue indices in an array (as required by vulkan)
-    const unsigned queue_family_indices[] = {queue_indices.graphicsFamily.value(), queue_indices.presentFamily.value()};
+    const unsigned queue_family_indices[] = {queue_family.graphicsFamily.value(), queue_family.presentFamily.value()};
 
 
     //filling the struct to create the swapchain
@@ -50,7 +47,7 @@ void SwapChain::setup() {
                                                                 // - it is possible to not render directly to the swap chain in which case you'd want to use VK_IMAGE_USAGE_TRANSFER_DST_BIT
     //specifying the queues to use
     // - need to consider when the present and graphics queues are the same and different
-    if (queue_indices.graphicsFamily != queue_indices.presentFamily) {
+    if (queue_family.graphicsFamily != queue_family.presentFamily) {
         createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;   //saying the images can be used across multiple queues (can have the mode be exclusive, but then we would have to consider ownership)
         createInfo.queueFamilyIndexCount = 2;                   //number of queue families having access to the images of the swapchain
         createInfo.pQueueFamilyIndices = queue_family_indices;  //pointer the array of indices having access to the swapchain

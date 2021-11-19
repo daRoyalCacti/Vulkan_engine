@@ -24,8 +24,12 @@ void Renderer::initVulkan() {
     //must be done before creating the logical device
     physical_device.setup();
 
+    //finding the present and graphics queues to use
+    queue_family.setup();
+
     //setting up the interface to the physical device
     logical_device.setup();
+
 
     //setting up the framebuffers
     swap_chain.setup();
@@ -42,17 +46,23 @@ void Renderer::initVulkan() {
     //creating the framebufers
     framebuffers.setup();
 
+    //creating command pools
+    command_pool.setup();
+
 }
 
 
 void Renderer::cleanup() {
+    //destroying the command pool
+    command_pool.cleanup();
+
     //destroying the framebuffers
     framebuffers.cleanup();
 
     //destroying the graphics pipeline
     graphics_pipeline.cleanup();
 
-    //destorying the render pass
+    //destroying the render pass
     render_pass.cleanup();
 
     //destroying views into the swapchain images

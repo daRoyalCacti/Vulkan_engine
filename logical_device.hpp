@@ -8,6 +8,7 @@
 #include <vulkan/vulkan.h>
 #include "physical_device.hpp"
 #include <array>
+#include "queue_family.hpp"
 
 //logical device are used to interface with physical devices
 //this struct also holds the queues that interface with the physical device
@@ -22,11 +23,14 @@ struct LogicalDevice {
     // - don't required anything special right now so just leaving this blank
     static constexpr VkPhysicalDeviceFeatures required_device_features{};
 
-    explicit LogicalDevice(PhysicalDevice & pd) : physical_device(pd) {}
+    explicit LogicalDevice(PhysicalDevice & pd, QueueFamily &q) : physical_device(pd), queue_family(q) {}
     [[nodiscard]] VkDevice get_device() const {return device;}
 
     void setup();
     void cleanup() const;
+
+private:
+    QueueFamily &queue_family;
 };
 
 

@@ -84,8 +84,8 @@ unsigned PhysicalDevice::rateDeviceSuitability(VkPhysicalDevice device) {
 }
 
 bool PhysicalDevice::isDeviceSuitable(VkPhysicalDevice device) {
-    QueueFamily queue_family;
-    queue_family.findQueueFamilies(device, surface.get_surface());
+    QueueFamily queue_family(device, surface.get_surface());
+    queue_family.setup();
     const auto queue_family_good = queue_family.has_graphics() && queue_family.has_present();
 
     const auto extensions_supported = checkDeviceExtensionSupport(device);

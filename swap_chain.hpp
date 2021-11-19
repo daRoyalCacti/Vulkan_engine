@@ -8,11 +8,12 @@
 #include "window.hpp"
 #include "logical_device.hpp"
 #include "surface.hpp"
+#include "queue_family.hpp"
 
 #include <vector>
 
 struct SwapChain {
-    SwapChain(Window& w, LogicalDevice& d, Surface &s) : window(w), device(d), surface(s) {}
+    SwapChain(Window& w, LogicalDevice& d, Surface &s, QueueFamily &q) : window(w), device(d), surface(s), queue_family(q) {}
 
     void setup();
     void cleanup() const {vkDestroySwapchainKHR(device.get_device(), swapChain, nullptr);}
@@ -35,6 +36,7 @@ private:
     Window& window;
     LogicalDevice& device;
     Surface &surface;
+    QueueFamily &queue_family;
 };
 
 

@@ -19,11 +19,16 @@ struct QueueFamily {
     //storing the index of the queue used for presentation
     std::optional<unsigned> presentFamily;
 
-    void findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
+    QueueFamily(VkPhysicalDevice &d, VkSurfaceKHR &s) : device(d), surface(s) {}
+
+    void setup();
 
     [[nodiscard]] bool has_graphics() const {return graphicsFamily.has_value();}
     [[nodiscard]] bool has_present() const {return presentFamily.has_value();}
 
+private:
+    VkPhysicalDevice& device;
+    VkSurfaceKHR& surface;
 };
 
 

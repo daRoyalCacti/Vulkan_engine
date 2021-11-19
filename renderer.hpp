@@ -11,24 +11,26 @@
 #include "debug_callback.hpp"
 #include "instance.hpp"
 #include "physical_device.hpp"
+#include "queue_family.hpp"
 #include "logical_device.hpp"
 #include "surface.hpp"
 #include "swap_chain.hpp"
 #include "image_views.hpp"
 #include "graphics_pipeline.hpp"
 #include "framebuffers.hpp"
+#include "command_pool.hpp"
 
 struct Renderer {
 #ifdef VALDIATION_LAYERS
-    explicit Renderer(Window& w) : window(w), debug_messenger(instance), logical_device(physical_device),
-            surface(window, instance), physical_device(instance, surface), swap_chain(window, logical_device, surface),
+    explicit Renderer(Window& w) : window(w), debug_messenger(instance), logical_device(physical_device, queue_family), queue_family(physical_device.physicalDevice, surface.surface),
+            surface(window, instance), physical_device(instance, surface), swap_chain(window, logical_device, surface, queue_family),
             image_views(swap_chain, logical_device), graphics_pipeline(logical_device, swap_chain, render_pass),
-                                   render_pass(logical_device, swap_chain), framebuffers(logical_device, image_views, render_pass, swap_chain){}
+           render_pass(logical_device, swap_chain), framebuffers(logical_device, image_views, render_pass, swap_chain), command_pool(logical_device, queue_family){}
 #else
-    explicit Renderer(Window& w) : window(w), logical_device(physical_device),
-        surface(window, instance), physical_device(instance, surface) , swap_chain(window, logical_device, surface) ,
+    explicit Renderer(Window& w) : window(w), logical_device(physical_device, queue_family), queue_family(physical_device.physicalDevice, surface.surface),
+        surface(window, instance), physical_device(instance, surface) , swap_chain(window, logical_device, surface, queue_family) ,
         image_views(swap_chain, logical_device), graphics_pipeline(logical_device, swap_chain, render_pass), render_pass(logical_device, swap_chain),
-        framebuffers(logical_device, image_views, render_pass, swap_chain){}
+        framebuffers(logical_device, image_views, render_pass, swap_chain), command_pool(logical_device, queue_family){}
 #endif
     void initVulkan();
     void cleanup();
@@ -47,6 +49,9 @@ private:
 
     //The graphics card to use
     PhysicalDevice physical_device;
+
+    //the queue indices to use
+    QueueFamily queue_family;
 
     //The interface to the graphics card
     LogicalDevice logical_device;
@@ -68,6 +73,9 @@ private:
 
     //framebuffers -- stored the rendered images in the swap chain
     Framebuffers framebuffers;
+
+    //memory to store command buffers
+    CommandPool command_pool;
 };
 
 

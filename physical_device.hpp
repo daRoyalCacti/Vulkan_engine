@@ -24,13 +24,15 @@ struct PhysicalDevice {
     static bool checkDeviceExtensionSupport(VkPhysicalDevice device);
     VkPhysicalDevice& get_device() {return physicalDevice;}
 
-    Surface & surface;
-private:
-    Instance & instance;
 
     //the handle to graphics card
     // - setting to NULL to prevent undefined behaviour
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;    //this is implicitly destroyed when the instance is destroyed
+
+    Surface & surface;
+private:
+    Instance & instance;
+
 };
 
 
