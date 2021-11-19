@@ -19,18 +19,21 @@
 #include "graphics_pipeline.hpp"
 #include "framebuffers.hpp"
 #include "command_pool.hpp"
+#include "command_buffers.hpp"
 
 struct Renderer {
 #ifdef VALDIATION_LAYERS
     explicit Renderer(Window& w) : window(w), debug_messenger(instance), logical_device(physical_device, queue_family), queue_family(physical_device.physicalDevice, surface.surface),
             surface(window, instance), physical_device(instance, surface), swap_chain(window, logical_device, surface, queue_family),
             image_views(swap_chain, logical_device), graphics_pipeline(logical_device, swap_chain, render_pass),
-           render_pass(logical_device, swap_chain), framebuffers(logical_device, image_views, render_pass, swap_chain), command_pool(logical_device, queue_family){}
+           render_pass(logical_device, swap_chain), framebuffers(logical_device, image_views, render_pass, swap_chain), command_pool(logical_device, queue_family),
+                                   command_buffers(logical_device, command_pool, framebuffers, render_pass, swap_chain, graphics_pipeline){}
 #else
     explicit Renderer(Window& w) : window(w), logical_device(physical_device, queue_family), queue_family(physical_device.physicalDevice, surface.surface),
         surface(window, instance), physical_device(instance, surface) , swap_chain(window, logical_device, surface, queue_family) ,
         image_views(swap_chain, logical_device), graphics_pipeline(logical_device, swap_chain, render_pass), render_pass(logical_device, swap_chain),
-        framebuffers(logical_device, image_views, render_pass, swap_chain), command_pool(logical_device, queue_family){}
+        framebuffers(logical_device, image_views, render_pass, swap_chain), command_pool(logical_device, queue_family),
+                                   command_buffers(logical_device, command_pool, framebuffers, render_pass, swap_chain, graphics_pipeline){}
 #endif
     void initVulkan();
     void cleanup();
@@ -76,6 +79,9 @@ private:
 
     //memory to store command buffers
     CommandPool command_pool;
+
+    //command buffers -- holds the rendering commands
+    CommandBuffers command_buffers;
 };
 
 

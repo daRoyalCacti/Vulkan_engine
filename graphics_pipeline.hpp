@@ -23,6 +23,8 @@ struct GraphicsPipeline {
     VkPipelineLayout pipeline_layout{};
     VkPipeline grahics_pipeline{};
 
+    [[nodiscard]] VkPipeline& get_pipeline(){ return grahics_pipeline; }
+
 private:
     LogicalDevice &device;
     SwapChain &swap_chain;

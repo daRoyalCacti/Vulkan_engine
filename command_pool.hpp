@@ -11,12 +11,14 @@
 
 //command pools manage the memory that is used to store command buffers
 struct CommandPool {
-    VkCommandPool command_pool;
+    VkCommandPool command_pool{};
 
     CommandPool(LogicalDevice &d, QueueFamily &q) : device(d), queue_family(q) {}
 
     void setup();
     void cleanup();
+
+    [[nodiscard]] VkCommandPool& get_command_pool() {return command_pool;}
 
 private:
     LogicalDevice &device;

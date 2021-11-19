@@ -49,6 +49,9 @@ void Renderer::initVulkan() {
     //creating command pools
     command_pool.setup();
 
+    //creating and recording the drawing commands
+    command_buffers.setup();
+
 }
 
 
