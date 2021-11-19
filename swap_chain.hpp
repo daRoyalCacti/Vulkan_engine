@@ -22,6 +22,7 @@ struct SwapChain {
     // - better performance if set to true
     static constexpr VkBool32 clip_pixels = VK_TRUE;
 
+    [[nodiscard]] VkSwapchainKHR& get_swap_chain() {return swapChain;}
 
     VkSwapchainKHR swapChain{}; //handle to the swap chain
 

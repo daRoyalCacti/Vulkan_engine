@@ -20,6 +20,8 @@
 #include "framebuffers.hpp"
 #include "command_pool.hpp"
 #include "command_buffers.hpp"
+#include "semaphores.hpp"
+#include "fences.hpp"
 
 struct Renderer {
 #ifdef VALDIATION_LAYERS
@@ -27,18 +29,27 @@ struct Renderer {
             surface(window, instance), physical_device(instance, surface), swap_chain(window, logical_device, surface, queue_family),
             image_views(swap_chain, logical_device), graphics_pipeline(logical_device, swap_chain, render_pass),
            render_pass(logical_device, swap_chain), framebuffers(logical_device, image_views, render_pass, swap_chain), command_pool(logical_device, queue_family),
-                                   command_buffers(logical_device, command_pool, framebuffers, render_pass, swap_chain, graphics_pipeline){}
+           command_buffers(logical_device, command_pool, framebuffers, render_pass, swap_chain, graphics_pipeline),
+                                   semaphores(logical_device), fences(logical_device){}
 #else
     explicit Renderer(Window& w) : window(w), logical_device(physical_device, queue_family), queue_family(physical_device.physicalDevice, surface.surface),
         surface(window, instance), physical_device(instance, surface) , swap_chain(window, logical_device, surface, queue_family) ,
         image_views(swap_chain, logical_device), graphics_pipeline(logical_device, swap_chain, render_pass), render_pass(logical_device, swap_chain),
         framebuffers(logical_device, image_views, render_pass, swap_chain), command_pool(logical_device, queue_family),
-                                   command_buffers(logical_device, command_pool, framebuffers, render_pass, swap_chain, graphics_pipeline){}
+       command_buffers(logical_device, command_pool, framebuffers, render_pass, swap_chain, graphics_pipeline),
+                                   semaphores(logical_device), fences(logical_device){}
 #endif
     void initVulkan();
     void cleanup();
+    void drawFrame();
+    void endDrawFrame();
+
+    //how many frames should be processed concurrently
+    static constexpr unsigned max_frames_in_flight = 2;
 
 private:
+    size_t currentFrame = 0;    //used for rendering
+
     //variables for the window
     Window& window;
 
@@ -82,6 +93,16 @@ private:
 
     //command buffers -- holds the rendering commands
     CommandBuffers command_buffers;
+
+    //semaphores -- tell the GPU certain operations are done
+    Semaphores<max_frames_in_flight> semaphores;
+
+    //fences -- allow for CPU-GPU synchronisation
+    Fences<max_frames_in_flight> fences;
+
+    //making sure we don't render to an image that is already in flight
+    std::vector<VkFence> imagesInFlight;
+
 };
 
 

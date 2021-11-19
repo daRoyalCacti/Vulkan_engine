@@ -61,6 +61,21 @@ void RenderPass::setup() {
     // - pDepthStencilAttachment: Attachment for depth and stencil data
     // - pPreserveAttachments: Attachments that are not used by this subpass, but for which the data must be preserved
 
+    //creating subpass dependencies
+    // - currently taking care of the image layout transition at the start of the render pass (for the images in the framebuffer)
+    VkSubpassDependency dependency{};   //https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkSubpassDependency.html
+    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;    //the subpass index of the first subpass
+                                                    // - VK_SUBPASS_EXTERNAL refers to the implicit subpass before (or after) a render pas
+    dependency.dstSubpass = 0;                      //Refers to the first (and only) subpass
+    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;    //the operations to wait on
+                                                                                // - https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkPipelineStageFlagBits.html
+    dependency.srcAccessMask = 0;                                               //the stages where the above operation occurs (in this case the only stage)
+                                                                                // - https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkAccessFlagBits.html
+    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;    //The operations that should wait on this are in the color attachment stage
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;            // and involve the writing of the color attachment
+                                                                                // - this prevents the transition from happening until it's actually necessary (and allowed)
+
+
 
     //actually creating the render pass
     VkRenderPassCreateInfo renderPassInfo{};    //https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkRenderPassCreateInfo.html
@@ -69,6 +84,9 @@ void RenderPass::setup() {
     renderPassInfo.pAttachments = &colorAttachment;     //pointer to an array of VkAttachmentDescription structures
     renderPassInfo.subpassCount = 1;                    //the total number of subpasses (the graphics pipeline uses these subasses)
     renderPassInfo.pSubpasses = &subpass;               //pointer to any array of VkSubpassDependency structures
+    renderPassInfo.dependencyCount = 1;                 //the number of memory dependencies between subpasses
+    renderPassInfo.pDependencies = &dependency;         //the array of memory dependencies
+
 
     const auto create_pass_res = vkCreateRenderPass(device.get_device(), &renderPassInfo, nullptr, &render_pass);
     if (create_pass_res != VK_SUCCESS) {

@@ -24,6 +24,8 @@ struct CommandBuffers {
 
     void setup();
 
+    [[nodiscard]] std::vector<VkCommandBuffer>& get_command_buffers() {return commandBuffers;}
+
     //the colour the screen gets cleared to
     static constexpr VkClearValue clear_colour = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
 
