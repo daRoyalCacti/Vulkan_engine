@@ -73,8 +73,18 @@ void CommandBuffers::setup() {
         // - VK_PIPELINE_BIND_POINT_GRAPHICS because for graphics and not for compute
         vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline.get_pipeline());
 
+        //binding the buffer for drawing
+        // - binding it to binding 0 (the only binding)
+        //VkBuffer vertexBuffers[] = {vertex_buffer.get_buffer()};
+        VkBuffer vertexBuffers[] = {vertex_buffer.vertexBuffer};
+        VkDeviceSize offsets[] = {0};
+        vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+        //The first two parameters, besides the command buffer, specify the offset and number of bindings we're going to specify vertex buffers for.
+        //The last two parameters specify the array of vertex buffers to bind and the byte offsets to start reading vertex data from
+
+
         //telling vulkan to draw the triangle
-        vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+        vkCmdDraw(commandBuffers[i], vertex_buffer.vertices.size(), 1, 0, 0);
         // - The first parameter is just binding to the command buffer
         // - The second parameter is the number of vertices (just 3 because using a triangle)
         // - The third parameter is the offset into the vertex buffer

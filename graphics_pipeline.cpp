@@ -13,6 +13,7 @@
 #include "graphics_pipeline/multisampling.hpp"
 #include "graphics_pipeline/color_blend.hpp"
 #include "graphics_pipeline/pipeline_layout.hpp"
+#include "vertex.hpp"
 
 #include <stdexcept>
 
@@ -47,7 +48,10 @@ void GraphicsPipeline::setup() {
     viewportState.pScissors = &scissor.get_pipeline_stage();
 
     //how the vertex are layed out
-    VertexInput vertex_input(0, nullptr, 0, nullptr);
+    const auto bindingDescription = Vertex::TWOD_VC::getBindingDescription();
+    const auto attributeDescriptions = Vertex::TWOD_VC::getAttributeDescriptions();
+
+    VertexInput vertex_input(1, &bindingDescription, attributeDescriptions.size(), attributeDescriptions.data());
     //the type of data being rendered (e.g. triangles or lines)
     InputAssembly input_assembly(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
     //the rasterizing settings

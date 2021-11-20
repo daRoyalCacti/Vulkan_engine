@@ -50,6 +50,10 @@ void Renderer::initVulkan() {
     //creating command pools
     command_pool.setup();
 
+    //creating and filling the vertex buffer
+    // - must be done before command buffers are created
+    vertex_buffer.setup();
+
     //creating and recording the drawing commands
     command_buffers.setup();
 
@@ -70,6 +74,9 @@ void Renderer::cleanup() {
 
     //destoying semaphores
     semaphores.cleanup();
+
+    //destorying the vertex buffer
+    vertex_buffer.cleanup();
 
     //destroying the command pool
     command_pool.cleanup();
