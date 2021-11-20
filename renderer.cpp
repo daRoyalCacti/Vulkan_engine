@@ -200,6 +200,16 @@ void Renderer::endDrawFrame() {
 }
 
 void Renderer::recreateSwapChain() {
+    //catching the degenerate case of a window size of 0
+    // - in this case just pausing the application until the window size is not 0
+    int width, height;
+    glfwGetFramebufferSize(window.get_window(), &width, &height);   //getting the size of thw window
+    while (width == 0 || height == 0) { //don't do anything until the window is larger than 0
+        glfwGetFramebufferSize(window.get_window(), &width, &height);
+        glfwWaitEvents();
+    }
+
+
     vkDeviceWaitIdle(logical_device.get_device());   //should not touch any resources that may be in flight
 
     //cleaning up old swap-chain
