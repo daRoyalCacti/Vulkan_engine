@@ -27,14 +27,17 @@ struct Renderer {
 #ifdef VALDIATION_LAYERS
     explicit Renderer(Window& w) : window(w), debug_messenger(instance), logical_device(physical_device, queue_family), queue_family(physical_device.physicalDevice, surface.surface),
             surface(window, instance), physical_device(instance, surface), swap_chain(window, logical_device, surface, queue_family),
-            image_views(swap_chain, logical_device), graphics_pipeline(logical_device, swap_chain, render_pass),
+            image_views(swap_chain, logical_device),
+            graphics_pipeline(logical_device, swap_chain, render_pass, "../shader_bytecode/triangle_vert.spv",  "../shader_bytecode/triangle_frag.spv"),
            render_pass(logical_device, swap_chain), framebuffers(logical_device, image_views, render_pass, swap_chain), command_pool(logical_device, queue_family),
            command_buffers(logical_device, command_pool, framebuffers, render_pass, swap_chain, graphics_pipeline),
                                    semaphores(logical_device), fences(logical_device){}
 #else
     explicit Renderer(Window& w) : window(w), logical_device(physical_device, queue_family), queue_family(physical_device.physicalDevice, surface.surface),
         surface(window, instance), physical_device(instance, surface) , swap_chain(window, logical_device, surface, queue_family) ,
-        image_views(swap_chain, logical_device), graphics_pipeline(logical_device, swap_chain, render_pass), render_pass(logical_device, swap_chain),
+        image_views(swap_chain, logical_device),
+        graphics_pipeline(logical_device, swap_chain, render_pass, "../shader_bytecode/triangle_vert.spv",  "../shader_bytecode/triangle_frag.spv"),
+        render_pass(logical_device, swap_chain),
         framebuffers(logical_device, image_views, render_pass, swap_chain), command_pool(logical_device, queue_family),
        command_buffers(logical_device, command_pool, framebuffers, render_pass, swap_chain, graphics_pipeline),
                                    semaphores(logical_device), fences(logical_device){}
