@@ -19,8 +19,8 @@ void Window::makeWindow() {
     ////================================================================
     //need to call NO_API because GLFW was designed for openGL
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    //disabling the ability to resize the window for now
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    //enabling the ability to resize the window
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
 
     //creating the window
@@ -30,12 +30,24 @@ void Window::makeWindow() {
     //the second last nullptr refers to the a monitor. It is GLFWmonitor*.
     // - see https://www.glfw.org/docs/latest/monitor_guide.html#monitor_object
     window = glfwCreateWindow(window_width, window_height, window_name, nullptr, nullptr);
+
+    //setting the parameters need for resizing
+    glfwSetWindowUserPointer(window, this); //data to pass with the window pointer
+                                                    // - need to update the window_resized variable on resize
+    glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);  //the function to call on resize
 }
 
-void Window::cleanup() {
+void Window::cleanup() const {
     //destroying the window and its context.
     glfwDestroyWindow(window);
     //destroys all remaining windows and cursors, restores any modified gamma ramps,
     //frees any allocated resources created by GLFW
     glfwTerminate();
+}
+
+
+void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
+    auto wind = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+    wind->window_resized = true;
+
 }

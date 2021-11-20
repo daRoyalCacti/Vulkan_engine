@@ -14,11 +14,15 @@ struct Window {
     const char* window_name = "Vulkan";
 
     void makeWindow();
-    void cleanup();
+    void cleanup() const;
     [[nodiscard]] inline GLFWwindow* const& get_window() const {
         return window;
     }
+
+    bool window_resized = false;  //if the window was just resized (is needed for rendering)
 };
+
+void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 
 
 #endif //VULKAN_ENGINE_WINDOW_HPP

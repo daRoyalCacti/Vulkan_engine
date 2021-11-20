@@ -113,10 +113,22 @@ void Renderer::drawFrame() {
     //get the next image from the swapchain
     //=====================================
     uint32_t imageIndex;
-    vkAcquireNextImageKHR(logical_device.get_device(), swap_chain.get_swap_chain(), UINT64_MAX, semaphores.imageAvailableSemaphore[currentFrame], VK_NULL_HANDLE, &imageIndex);
+    const auto new_img_result = vkAcquireNextImageKHR(logical_device.get_device(), swap_chain.get_swap_chain(), UINT64_MAX, semaphores.imageAvailableSemaphore[currentFrame], VK_NULL_HANDLE, &imageIndex);
     // - the 3rd parameter specifies a timeout in nanoseconds to wait for an image to become available (setting it to UINT64_MAX disables the timeout)
     // - 4th and 5th parameters specify synchronisation objects that are to be signaled when the presentation engine is finished using the image (That's the point in time where we can start drawing to it.)
     // - the final parameter is the index in the swap chain of the current image (use this to pick the correct command buffer
+
+    //if the swap chain is no longer adequate (i.e. the window was resized)
+    // - VK_ERROR_OUT_OF_DATE_KHR: The swap chain has become incompatible with the surface and can no longer be used for rendering. Usually happens after a window resize
+    // - VK_SUBOPTIMAL_KHR: The swap chain can still be used to successfully present to the surface, but the surface properties are no longer matched exactly.
+    if (new_img_result == VK_ERROR_OUT_OF_DATE_KHR) {
+        //if the window was resized, the swap chain needs to be recreated
+        recreateSwapChain();
+        return; //cannot present to current swapchain so need to return
+    } else if (new_img_result != VK_SUCCESS && new_img_result != VK_SUBOPTIMAL_KHR) {
+        //some other error
+        throw std::runtime_error("failed to get next swap chain image");
+    }
 
     //Check if a previous frame is using this image (i.e. there is its fence to wait on)
     // - if so wait for the image to be finished rendering to
@@ -165,7 +177,18 @@ void Renderer::drawFrame() {
     presentInfo.pResults = nullptr;             //array of VkResult values to check if every swapchain presentation was successful
                                                 // - not necessary because we are only using a single swapchain
     //submitting the request to present and image to the swap chain
-    vkQueuePresentKHR(logical_device.present_queue, &presentInfo);
+    const auto pres_result = vkQueuePresentKHR(logical_device.present_queue, &presentInfo);
+
+    //again if the swapchain is no longer adequate
+    // - see above for code comments
+    //also consider when the window is explicitly marked as being resized
+    // - vulkan is not guaranteed to return errors if the swap chain is not valid (although it almost always will)
+    if (pres_result == VK_ERROR_OUT_OF_DATE_KHR || pres_result == VK_SUBOPTIMAL_KHR || window.window_resized) {
+        window.window_resized = false;
+        recreateSwapChain();
+    } else if (pres_result != VK_SUCCESS) {
+        throw std::runtime_error("failed to present swap chain image!");
+    }
 
     //storing the current frame that is being worked on
     currentFrame = (currentFrame + 1) % max_frames_in_flight;
@@ -174,4 +197,33 @@ void Renderer::drawFrame() {
 void Renderer::endDrawFrame() {
     //do not want to start cleaning up while drawing is still going on
     vkDeviceWaitIdle(logical_device.get_device());
+}
+
+void Renderer::recreateSwapChain() {
+    vkDeviceWaitIdle(logical_device.get_device());   //should not touch any resources that may be in flight
+
+    //cleaning up old swap-chain
+    // - cleaning up up everything that needs to be recreated (generally in the reverse order that they are created)
+    //=========================
+    framebuffers.cleanup();
+    //we could recreate the command pool from scratch but this is wasteful
+    //just cleaning up the existing command buffers
+    // - can then just use the existing command pool to allocate the new command buffers
+    vkFreeCommandBuffers(logical_device.get_device(), command_pool.get_command_pool(), static_cast<unsigned>(command_buffers.get_command_buffers().size()), command_buffers.get_command_buffers().data() );
+    graphics_pipeline.cleanup();
+    render_pass.cleanup();
+    image_views.cleanup();
+    swap_chain.cleanup();
+
+
+    //creating the new swap-chain
+    //===========================
+    swap_chain.setup();         //obviously have to re-create the swap-chain
+    image_views.setup();        //image views are directly for the images in the swap chain and so need to be recreated
+    render_pass.setup();        //render pass depends on the format of the swap-chain images
+                                // - the format of the images shouldn't change during window resize but just catching the edge case
+    graphics_pipeline.setup();  //viewport and scissor changes so the graphics pipeline needs to be recreated
+                                // - could avoid this using dynamic states for the viewport and the scissors
+    framebuffers.setup();       //frame buffers and command buffers depend directly on the swap chain images
+    command_buffers.setup();
 }

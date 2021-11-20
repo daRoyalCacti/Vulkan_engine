@@ -50,6 +50,8 @@ struct Renderer {
 private:
     size_t currentFrame = 0;    //used for rendering
 
+    void recreateSwapChain();   //used whenever the window is resized
+
     //variables for the window
     Window& window;
 
