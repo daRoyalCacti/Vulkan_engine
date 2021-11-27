@@ -1,0 +1,5 @@
+Staging buffer (do after texture tutorial -- requires memory barriers):
+I disagree with "Change the sharingMode of resources to be VK_SHARING_MODE_CONCURRENT and specify both the graphics and transfer queue families"
+
+In our case, the buffer will be used only by the graphicQueue, or the transferQueue, not both at the same time.
+So, instead of using VK_SHARING_MODE_CONCURRENT, it should be better to use a memory barrier to release ownership from the graphicQueue to the transferQueue, make the copy, and release ownership from the transferQueue to the graphicQueue.
