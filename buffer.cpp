@@ -42,6 +42,8 @@ unsigned findMemoryType(PhysicalDevice &physisical_device, uint32_t typeFilter, 
 
 
 //size is size in bytes
+//very few of these buffers should be created. On high end graphics cards there is a maximum of around 4000 possible.
+//Should create one big buffers and use offsets to access the data inside it
 void create_buffer(LogicalDevice &device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
     VkBufferCreateInfo bufferInfo{};                            //https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkBufferCreateInfo.html
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;    //sType must be VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO

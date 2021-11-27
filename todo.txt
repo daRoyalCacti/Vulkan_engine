@@ -1,10 +1,28 @@
-Staging buffer (do after texture tutorial -- requires memory barriers):
+Staging buffer has dedicated transfer queue (do after texture tutorial -- requires memory barriers):
+    Transfer queue at https://vulkan-tutorial.com/Vertex_buffers/Staging_buffer
+
     I disagree with "Change the sharingMode of resources to be VK_SHARING_MODE_CONCURRENT and specify both the graphics and transfer queue families"
 
     In our case, the buffer will be used only by the graphicQueue, or the transferQueue, not both at the same time.
     So, instead of using VK_SHARING_MODE_CONCURRENT, it should be better to use a memory barrier to release ownership from the graphicQueue to the transferQueue, make the copy, and release ownership from the transferQueue to the graphicQueue.
 
+Allow for multiple transfers to happen at once
+    Currently copying data calls for the devic to idle
+    Should instead use fences
+
+1 vkAllocateMemory call
+    Currently each mesh has its own buffer for vertices and indices
+    The maximum number of buffers is only around 4000 so this is bad
+    Need to create big buffers and copy the vertex data into them using offsets
 
 Abstract making a geneneral command buffer
     have main drawing command buffer
     and also a command buffer for creating vertex buffer
+
+Make making buffers better
+    current the vertices and indices for a mehs are stored in different VkBuffer objects
+    It is apparently better to store them in the same buffer and use offsets to access them individually (like in vkCmdBindVertexBuffers)
+    This means the data is more cache friendly
+
+Abstract creating the full process of creating and copying data into a buffer
+    Creating the vertex and index buffer are very similar

@@ -13,12 +13,15 @@
 #include "swap_chain.hpp"
 #include "graphics_pipeline.hpp"
 #include "vertex_buffer.hpp"
+#include "index_buffer.hpp"
 
 //all commands in vulkan must be submitted using a command buffer
 // - command buffers are allocated from command pools
 struct CommandBuffers {
-    CommandBuffers(LogicalDevice &d, CommandPool &c, Framebuffers &f, RenderPass &r, SwapChain &s, GraphicsPipeline &g, VertexBuffer<Vertex::TWOD_VC> &v)
-        : device(d), command_pool(c), frame_buffers(f), render_pass(r), swap_chain(s), graphics_pipeline(g), vertex_buffer(v){}
+    CommandBuffers(LogicalDevice &d, CommandPool &c, Framebuffers &f, RenderPass &r, SwapChain &s, GraphicsPipeline &g, VertexBuffer<Vertex::TWOD_VC> &v1,
+                   VertexBuffer<Vertex::TWOD_VC> &v2, IndexBuffer<uint16_t> &i)
+        : device(d), command_pool(c), frame_buffers(f), render_pass(r), swap_chain(s), graphics_pipeline(g), vertex_buffer1(v1), vertex_buffer2(v2),
+          index_buffer(i){}
 
     //https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkCommandBuffer.html
     std::vector<VkCommandBuffer> commandBuffers;    //need a command buffer for every framebuffer
@@ -37,7 +40,9 @@ private:
     RenderPass &render_pass;
     SwapChain &swap_chain;
     GraphicsPipeline &graphics_pipeline;
-    VertexBuffer<Vertex::TWOD_VC>& vertex_buffer;
+    VertexBuffer<Vertex::TWOD_VC>& vertex_buffer1;
+    VertexBuffer<Vertex::TWOD_VC>& vertex_buffer2;
+    IndexBuffer<uint16_t>& index_buffer;
 };
 
 

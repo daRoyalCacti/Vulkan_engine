@@ -1,9 +1,10 @@
 //
-// Created by jacob on 20/11/21.
+// Created by jacob on 27/11/21.
 //
 
-#ifndef VULKAN_ENGINE_VERTEX_BUFFER_HPP
-#define VULKAN_ENGINE_VERTEX_BUFFER_HPP
+#ifndef VULKAN_ENGINE_INDEX_BUFFER_HPP
+#define VULKAN_ENGINE_INDEX_BUFFER_HPP
+
 
 #include <vulkan/vulkan.h>
 #include <vector>
@@ -16,17 +17,17 @@
 
 
 template <typename T>
-struct VertexBuffer {
-    VkBuffer vertexBuffer{};
-    VkDeviceMemory vertexBufferMemory{};    //a handle to the memory
+struct IndexBuffer {
+    VkBuffer indexBuffer{};
+    VkDeviceMemory indexBufferMemory{};    //a handle to the memory
 
 
-    VertexBuffer(LogicalDevice &d, CommandPool& c, std::vector<T>& v) : device(d), command_pool(c), vertices(v) {}
+    IndexBuffer(LogicalDevice &d, CommandPool& c, std::vector<T>& i) : device(d), command_pool(c), indices(i) {}
 
-    [[nodiscard]] VkBuffer& get_buffer() {return vertexBuffer;}
+    [[nodiscard]] VkBuffer& get_buffer() {return indexBuffer;}
 
     void setup() {
-        const VkDeviceSize buffer_size = sizeof(T) * vertices.size();
+        const VkDeviceSize buffer_size = sizeof(T) * indices.size();
         //Creating the staging buffer
         // - The most optimal memory has the VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT flag and is usually not accessible by the CPU on dedicated graphics cards.
         // - So we create two vertex buffers.
@@ -47,7 +48,7 @@ struct VertexBuffer {
         //The last parameter specifies the output for the pointer to the mapped memory.
 
         //simply memcpying the memory
-        memcpy(data, vertices.data(), buffer_size);
+        memcpy(data, indices.data(), buffer_size);
         //then unmapping the memory
         vkUnmapMemory(device.get_device(), stagingBufferMemory);
         //Unfortunately the driver may not immediately copy the data into the buffer memory, for example because of caching.
@@ -59,19 +60,19 @@ struct VertexBuffer {
         //The transfer of data to the GPU is an operation that happens in the background and the specification simply tells us that it is guaranteed to be complete as of the next call to vkQueueSubmit.
 
 
-        //creating the vertex buffer
+        //creating the index buffer
         //==========================
         //using create_buffer is slightly optimal as there is a maximum of simultaneous memory allocations
         // - this is given by thw maxMemoryAllocationCount physical device limit (on high-end graphics cards it can be 4096)
         // - should create bigger buffers and use offsets to specify the individual buffers
         // - could use https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
-        create_buffer(device, buffer_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+        create_buffer(device, buffer_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
 
 
         //copying data from the staging buffer to the vertex buffer
         // - note this is not the optimal way to do this if there are multiple copies that need to happen (see copy buffer comments)
         //==========================================================================================================================
-        copyBuffer(device, command_pool, stagingBuffer, vertexBuffer, buffer_size);
+        copyBuffer(device, command_pool, stagingBuffer, indexBuffer, buffer_size);
 
         //destroying the staging buffer (it is no longer of use -- the data has been copied from it)
         vkDestroyBuffer(device.get_device(), stagingBuffer, nullptr);
@@ -81,8 +82,8 @@ struct VertexBuffer {
     }
 
     void cleanup() {
-        vkDestroyBuffer(device.get_device(), vertexBuffer, nullptr);
-        vkFreeMemory(device.get_device(), vertexBufferMemory, nullptr);
+        vkDestroyBuffer(device.get_device(), indexBuffer, nullptr);
+        vkFreeMemory(device.get_device(), indexBufferMemory, nullptr);
     }
 
 
@@ -90,7 +91,7 @@ struct VertexBuffer {
 
 
 
-    std::vector<T>& vertices;
+    std::vector<T>& indices;
 private:
     LogicalDevice &device;
     CommandPool &command_pool;
@@ -100,6 +101,4 @@ private:
 
 
 
-
-
-#endif //VULKAN_ENGINE_VERTEX_BUFFER_HPP
+#endif //VULKAN_ENGINE_INDEX_BUFFER_HPP

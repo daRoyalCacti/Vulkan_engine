@@ -52,7 +52,12 @@ void Renderer::initVulkan() {
 
     //creating and filling the vertex buffer
     // - must be done before command buffers are created
-    vertex_buffer.setup();
+    vertex_buffer_triangle.setup();
+    vertex_buffer_square.setup();
+
+    //creating the index buffers
+    // - must be done before command buffers are created
+    index_buffer_square.setup();
 
     //creating and recording the drawing commands
     command_buffers.setup();
@@ -72,11 +77,15 @@ void Renderer::cleanup() {
     //destroying the fences
     fences.cleanup();
 
-    //destoying semaphores
+    //destroying semaphores
     semaphores.cleanup();
 
-    //destorying the vertex buffer
-    vertex_buffer.cleanup();
+    //destroying the index buffers
+    index_buffer_square.cleanup();
+
+    //destroying the vertex buffers
+    vertex_buffer_square.cleanup();
+    vertex_buffer_triangle.cleanup();
 
     //destroying the command pool
     command_pool.cleanup();
