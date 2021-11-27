@@ -43,7 +43,7 @@ struct Renderer {
             graphics_pipeline(logical_device, swap_chain, render_pass, vertex_shader_location,  fragment_shader_location),
            render_pass(logical_device, swap_chain), framebuffers(logical_device, image_views, render_pass, swap_chain), command_pool(logical_device, queue_family),
            command_buffers(logical_device, command_pool, framebuffers, render_pass, swap_chain, graphics_pipeline, vertex_buffer),
-                                   semaphores(logical_device), fences(logical_device), vertex_buffer(logical_device, vertices){}
+                                   semaphores(logical_device), fences(logical_device), vertex_buffer(logical_device, command_pool, vertices){}
 #else
     explicit Renderer(Window& w) : window(w), logical_device(physical_device, queue_family), queue_family(physical_device.physicalDevice, surface.surface),
         surface(window, instance), physical_device(instance, surface) , swap_chain(window, logical_device, surface, queue_family) ,
@@ -52,7 +52,7 @@ struct Renderer {
         render_pass(logical_device, swap_chain),
         framebuffers(logical_device, image_views, render_pass, swap_chain), command_pool(logical_device, queue_family),
        command_buffers(logical_device, command_pool, framebuffers, render_pass, swap_chain, graphics_pipeline, vertex_buffer),
-                                   semaphores(logical_device), fences(logical_device), vertex_buffer(logical_device, vertices){}
+                                   semaphores(logical_device), fences(logical_device), vertex_buffer(logical_device, command_pool, vertices){}
 #endif
     void initVulkan();
     void cleanup();
