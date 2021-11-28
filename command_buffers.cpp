@@ -71,19 +71,17 @@ void CommandBuffers::setup() {
 
         //bind the graphics pipeline
         // - VK_PIPELINE_BIND_POINT_GRAPHICS because for graphics and not for compute
-        vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline.get_pipeline());
+        vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline1.get_pipeline());
 
         //drawing the triangle
         //========================================================
         //binding the buffer for drawing
         // - binding it to binding 0 (the only binding)
-        //VkBuffer vertexBuffers[] = {vertex_buffer.get_buffer()};
         VkBuffer vertexBuffers1[] = {vertex_buffer1.vertexBuffer};
         VkDeviceSize offsets1[] = {0};
         vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers1, offsets1);
         //The first two parameters, besides the command buffer, specify the offset and number of bindings we're going to specify vertex buffers for.
         //The last two parameters specify the array of vertex buffers to bind and the byte offsets to start reading vertex data from
-
 
         //telling vulkan to draw the triangle
         vkCmdDraw(commandBuffers[i], vertex_buffer1.vertices.size(), 1, 0, 0);
@@ -94,6 +92,10 @@ void CommandBuffers::setup() {
 
         //drawing the square
         //==========================================================
+        //using a different pipeline because using a different shader to draw this
+        // - not can just have multiple calls to vkCmdDraw and/or vkCmdDrawIndexed in the same graphics pipeline
+        vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline2.get_pipeline());
+
         //note this is no done optimally
         //should have the vertex and index buffers as one big buffer and use offsets
         VkBuffer vertexBuffers2[] = {vertex_buffer2.vertexBuffer};
@@ -101,6 +103,10 @@ void CommandBuffers::setup() {
         vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers2, offsets2);
 
         vkCmdBindIndexBuffer(commandBuffers[i], index_buffer.indexBuffer, 0, VK_INDEX_TYPE_UINT16);  //index buffer uses 16bit integers
+
+        //binding the descriptor set
+        // - i.e. updating the layout values in the shader
+        vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline2.pipeline_layout, 0, 1, &descriptor_set.get_sets()[i], 0, nullptr);
 
         vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(index_buffer.indices.size()), 1, 0, 0, 0);
 

@@ -25,17 +25,23 @@
 #include "vertex.hpp"
 #include "vertex_buffer.hpp"
 #include "index_buffer.hpp"
+#include "descriptor_set_layout.hpp"
+#include "uniform_buffer_objects.hpp"
+#include "descriptor_pool.hpp"
+#include "descriptor_set.hpp"
 
-constexpr std::string_view vertex_shader_location = "../shader_bytecode/2D_vc_vert.spv";
-constexpr std::string_view fragment_shader_location = "../shader_bytecode/2D_vc_frag.spv";
+constexpr std::string_view vertex_shader_location1 = "../shader_bytecode/2D_vc_vert.spv";
+constexpr std::string_view fragment_shader_location1 = "../shader_bytecode/2D_vc_frag.spv";
 
+constexpr std::string_view vertex_shader_location2 = "../shader_bytecode/2D_vc_mvp_vert.spv";
+constexpr std::string_view fragment_shader_location2 = "../shader_bytecode/2D_vc_mvp_frag.spv";
 
 
 struct Renderer {
     std::vector<Vertex::TWOD_VC> vertices_triangle = {
         {{0.0f, -1.0f}, {1.0f, 1.0f, 1.0f}},
-        {{-1.0f, -0.25f}, {0.0f, 1.0f, 0.0f}},
-        {{-1.0f, -1.0f}, {0.0f, 0.0f, 1.0f}}
+        {{-1.0f, -1.0f}, {0.0f, 0.0f, 1.0f}},
+        {{-1.0f, -0.25f}, {0.0f, 1.0f, 0.0f}}
     };
     std::vector<Vertex::TWOD_VC> vertices_square = {
         {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
@@ -52,21 +58,27 @@ struct Renderer {
     explicit Renderer(Window& w) : window(w), debug_messenger(instance), logical_device(physical_device, queue_family), queue_family(physical_device.physicalDevice, surface.surface),
             surface(window, instance), physical_device(instance, surface), swap_chain(window, logical_device, surface, queue_family),
             image_views(swap_chain, logical_device),
-            graphics_pipeline(logical_device, swap_chain, render_pass, vertex_shader_location,  fragment_shader_location),
+            graphics_pipeline1(logical_device, swap_chain, render_pass, nullptr, vertex_shader_location1,  fragment_shader_location1),
+           graphics_pipeline2(logical_device, swap_chain, render_pass, &descriptor_set_layout, vertex_shader_location2,  fragment_shader_location2),
            render_pass(logical_device, swap_chain), framebuffers(logical_device, image_views, render_pass, swap_chain), command_pool(logical_device, queue_family),
-           command_buffers(logical_device, command_pool, framebuffers, render_pass, swap_chain, graphics_pipeline, vertex_buffer_triangle, vertex_buffer_square, index_buffer_square),
+           command_buffers(logical_device, command_pool, framebuffers, render_pass, swap_chain, graphics_pipeline1, graphics_pipeline2, vertex_buffer_triangle, vertex_buffer_square, index_buffer_square, descriptor_set),
                                    semaphores(logical_device), fences(logical_device), vertex_buffer_triangle(logical_device, command_pool, vertices_triangle),
-            vertex_buffer_square(logical_device, command_pool, vertices_square), index_buffer_square(logical_device, command_pool, indices_square){}
+            vertex_buffer_square(logical_device, command_pool, vertices_square), index_buffer_square(logical_device, command_pool, indices_square),
+            descriptor_set_layout(logical_device), uniform_buffer_object(logical_device, swap_chain), descriptor_pool(logical_device, swap_chain),
+                                   descriptor_set(logical_device, swap_chain, uniform_buffer_object, descriptor_pool, descriptor_set_layout){}
 #else
     explicit Renderer(Window& w) : window(w), logical_device(physical_device, queue_family), queue_family(physical_device.physicalDevice, surface.surface),
         surface(window, instance), physical_device(instance, surface) , swap_chain(window, logical_device, surface, queue_family) ,
         image_views(swap_chain, logical_device),
-        graphics_pipeline(logical_device, swap_chain, render_pass, vertex_shader_location,  fragment_shader_location),
+       graphics_pipeline1(logical_device, swap_chain, render_pass, nullptr, vertex_shader_location1,  fragment_shader_location1),
+       graphics_pipeline2(logical_device, swap_chain, render_pass, &descriptor_set_layout, vertex_shader_location2,  fragment_shader_location2),
         render_pass(logical_device, swap_chain),
         framebuffers(logical_device, image_views, render_pass, swap_chain), command_pool(logical_device, queue_family),
-       command_buffers(logical_device, command_pool, framebuffers, render_pass, swap_chain, graphics_pipeline, vertex_buffer_triangle, vertex_buffer_square, index_buffer_square),
-                                   semaphores(logical_device), fences(logical_device), vertex_buffer_triangle(logical_device, command_pool, vertices_triangle),
-            vertex_buffer_square(logical_device, command_pool, vertices_square), index_buffer_square(logical_device, command_pool, indices_square){}
+       command_buffers(logical_device, command_pool, framebuffers, render_pass, swap_chain, graphics_pipeline1, graphics_pipeline2, vertex_buffer_triangle, vertex_buffer_square, index_buffer_square, descriptor_set),
+       semaphores(logical_device), fences(logical_device), vertex_buffer_triangle(logical_device, command_pool, vertices_triangle),
+            vertex_buffer_square(logical_device, command_pool, vertices_square), index_buffer_square(logical_device, command_pool, indices_square),
+            descriptor_set_layout(logical_device), uniform_buffer_object(logical_device, swap_chain), descriptor_pool(logical_device, swap_chain),
+                                   descriptor_set(logical_device, swap_chain, uniform_buffer_object, descriptor_pool, descriptor_set_layout){}
 #endif
     void initVulkan();
     void cleanup();
@@ -111,13 +123,26 @@ private:
     ImageViews image_views;
 
     //the graphics pipeline --- how all the rendering gets done
-    GraphicsPipeline graphics_pipeline;
+    GraphicsPipeline graphics_pipeline1;
+    GraphicsPipeline graphics_pipeline2;
 
     //render pass -- how the framebuffer is written to
     RenderPass render_pass;
 
     //framebuffers -- stored the rendered images in the swap chain
     Framebuffers framebuffers;
+
+    //UBO -- holds the data for the shader
+    UniformBufferObject uniform_buffer_object;
+
+    //descriptor set layouts -- the layout of the data being passed to the shader
+    DescriptorSetLayout descriptor_set_layout;
+
+    //descriptor pool --- holds the memory for the descriptor sets
+    DescriptorPool descriptor_pool;
+
+    //descriptor set -- like command buffers but for descriptors
+    DescriptorSet descriptor_set;
 
     //memory to store command buffers
     CommandPool command_pool;

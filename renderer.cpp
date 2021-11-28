@@ -15,7 +15,6 @@ void Renderer::initVulkan() {
     debug_messenger.setup();
 #endif
 
-
     //setting up the surface to render to
     surface.setup();
 
@@ -38,11 +37,26 @@ void Renderer::initVulkan() {
     //creating views into the swapchain images
     image_views.setup();
 
+    //setting up the uniform buffer object
+    // - must be created before the descriptor set
+    uniform_buffer_object.setup();
+
+    //creating the layout for passing data to the shaders
+    // - must be done before pipeline is created
+    descriptor_set_layout.setup();
+
+    //creating the descriptor pool
+    descriptor_pool.setup();
+
+    //creating the descriptor sets
+    descriptor_set.setup();
+
     //creating the render pass -- must be done before creating the graphics pipeline
     render_pass.setup();
 
     //creating the graphics pipeline
-    graphics_pipeline.setup();
+    graphics_pipeline2.setup();
+    graphics_pipeline1.setup();
 
     //creating the framebufers
     framebuffers.setup();
@@ -80,6 +94,15 @@ void Renderer::cleanup() {
     //destroying semaphores
     semaphores.cleanup();
 
+    //destorying the UBOs
+    uniform_buffer_object.cleanup();
+
+    //destroying the descriptor pools
+    descriptor_pool.cleanup();
+
+    //destroying the descriptor set layout
+    descriptor_set_layout.cleanup();
+
     //destroying the index buffers
     index_buffer_square.cleanup();
 
@@ -94,7 +117,8 @@ void Renderer::cleanup() {
     framebuffers.cleanup();
 
     //destroying the graphics pipeline
-    graphics_pipeline.cleanup();
+    graphics_pipeline1.cleanup();
+    graphics_pipeline2.cleanup();
 
     //destroying the render pass
     render_pass.cleanup();
@@ -153,6 +177,9 @@ void Renderer::drawFrame() {
     }
     // Mark the image as now being in use by this frame
     imagesInFlight[imageIndex] = fences.get_fences()[currentFrame];
+
+    //updating the uniform buffers
+    uniform_buffer_object.update(imageIndex);
 
     //submitting the command buffer
     //=============================
@@ -231,12 +258,15 @@ void Renderer::recreateSwapChain() {
     //cleaning up old swap-chain
     // - cleaning up up everything that needs to be recreated (generally in the reverse order that they are created)
     //=========================
+    descriptor_pool.cleanup();
+    uniform_buffer_object.cleanup();
     framebuffers.cleanup();
     //we could recreate the command pool from scratch but this is wasteful
     //just cleaning up the existing command buffers
     // - can then just use the existing command pool to allocate the new command buffers
     vkFreeCommandBuffers(logical_device.get_device(), command_pool.get_command_pool(), static_cast<unsigned>(command_buffers.get_command_buffers().size()), command_buffers.get_command_buffers().data() );
-    graphics_pipeline.cleanup();
+    graphics_pipeline1.cleanup();
+    graphics_pipeline2.cleanup();
     render_pass.cleanup();
     image_views.cleanup();
     swap_chain.cleanup();
@@ -248,8 +278,11 @@ void Renderer::recreateSwapChain() {
     image_views.setup();        //image views are directly for the images in the swap chain and so need to be recreated
     render_pass.setup();        //render pass depends on the format of the swap-chain images
                                 // - the format of the images shouldn't change during window resize but just catching the edge case
-    graphics_pipeline.setup();  //viewport and scissor changes so the graphics pipeline needs to be recreated
-                                // - could avoid this using dynamic states for the viewport and the scissors
+    graphics_pipeline1.setup(); //viewport and scissor changes so the graphics pipeline needs to be recreated
+    graphics_pipeline2.setup(); // - could avoid this using dynamic states for the viewport and the scissors
     framebuffers.setup();       //frame buffers and command buffers depend directly on the swap chain images
+    uniform_buffer_object.setup();  //the UBOs depend on the number of images in the swapchain
+    descriptor_pool.setup();        //depends on the number of images in the swapchain
+    descriptor_set.setup();         //  ditto
     command_buffers.setup();
 }

@@ -26,3 +26,12 @@ Make making buffers better
 
 Abstract creating the full process of creating and copying data into a buffer
     Creating the vertex and index buffer are very similar
+
+Abstract descriptor_set_layout to allow for multiple bindings with different types
+    current only has binding=0 with the mvvp matrices
+
+Abstract uniform_buffer_objects
+    currently only have 1, but all other UBO will have very similar code
+
+Update the uniform buffer object to interact with the camera class when created
+    currently just have hard coded values for everything (fov, nearplane, etc.)

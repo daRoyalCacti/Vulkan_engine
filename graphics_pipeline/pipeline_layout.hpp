@@ -11,7 +11,9 @@ struct PipelineLayout {
     //https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkPipelineLayoutCreateInfo.html
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 
-    PipelineLayout(const uint32_t no_descriptor_sets, const VkDescriptorSetLayout* descriptor_set_layouts, const uint32_t no_push_constants, const VkPushConstantRange* push_constant_ranges){
+    PipelineLayout() = default;
+
+    PipelineLayout(const uint32_t no_descriptor_sets, VkDescriptorSetLayout* descriptor_set_layouts, const uint32_t no_push_constants, const VkPushConstantRange* push_constant_ranges){
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;   //sType must be VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO
         pipelineLayoutInfo.setLayoutCount = no_descriptor_sets;         //the number of descriptor sets to include
         pipelineLayoutInfo.pSetLayouts = descriptor_set_layouts;        //a pointer to the descriptor set layouts (an array of VkDescriptorSetLayout objects)

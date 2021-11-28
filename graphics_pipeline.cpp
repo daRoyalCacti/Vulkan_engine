@@ -17,10 +17,16 @@
 
 #include <stdexcept>
 
+#include <iostream>
+
 void GraphicsPipeline::setup() {
     //setting the uniforms and push constants in the shader
-    PipelineLayout pipeline_info(0, nullptr,0, nullptr);
-
+    PipelineLayout pipeline_info{};
+    if (descriptor_set_layout == nullptr) {
+        pipeline_info = PipelineLayout(0, nullptr, 0, nullptr);
+    } else {
+        pipeline_info = PipelineLayout(1, &(descriptor_set_layout->get_layout()), 0, nullptr);
+    }
     //creating the pipeline
     const auto pipeline_layout_create_res = vkCreatePipelineLayout(device.get_device(), &pipeline_info.get_pipeline_stage(), nullptr, &pipeline_layout);   //pipeline_layout decleared in main header
     if (pipeline_layout_create_res != VK_SUCCESS) {
@@ -55,7 +61,7 @@ void GraphicsPipeline::setup() {
     //the type of data being rendered (e.g. triangles or lines)
     InputAssembly input_assembly(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
     //the rasterizing settings
-    Rasterizer rasterizer(VK_POLYGON_MODE_FILL, 1.0f, VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_CLOCKWISE);
+    Rasterizer rasterizer(VK_POLYGON_MODE_FILL, 1.0f, VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_COUNTER_CLOCKWISE);
     //the multisampling settings (how much to multisample if at all)
     Multisample multisample(VK_SAMPLE_COUNT_1_BIT, VK_FALSE, 1.0f);
 
@@ -97,7 +103,7 @@ void GraphicsPipeline::setup() {
 
     //acutally creating the pipeline
     // - can create multiple pipelines all in a single call
-    const auto pipeline_create_res = vkCreateGraphicsPipelines(device.get_device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &grahics_pipeline);
+    const auto pipeline_create_res = vkCreateGraphicsPipelines(device.get_device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphics_pipeline);
     if (pipeline_create_res != VK_SUCCESS) {
         throw std::runtime_error("failed to create graphics pipeline!");
     }
@@ -107,6 +113,6 @@ void GraphicsPipeline::setup() {
 }
 
 void GraphicsPipeline::cleanup() {
-    vkDestroyPipeline(device.get_device(), grahics_pipeline, nullptr);
+    vkDestroyPipeline(device.get_device(), graphics_pipeline, nullptr);
     vkDestroyPipelineLayout(device.get_device(), pipeline_layout, nullptr);
 }
