@@ -64,6 +64,9 @@ void Renderer::initVulkan() {
     //creating command pools
     command_pool.setup();
 
+    //creating the texture
+    texture.setup();
+
     //creating and filling the vertex buffer
     // - must be done before command buffers are created
     vertex_buffer_triangle.setup();
@@ -109,6 +112,9 @@ void Renderer::cleanup() {
     //destroying the vertex buffers
     vertex_buffer_square.cleanup();
     vertex_buffer_triangle.cleanup();
+
+    //destroying the texture
+    texture.cleanup();
 
     //destroying the command pool
     command_pool.cleanup();

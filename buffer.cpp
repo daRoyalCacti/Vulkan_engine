@@ -41,6 +41,76 @@ unsigned findMemoryType(PhysicalDevice &physisical_device, uint32_t typeFilter, 
 }
 
 
+
+void SingleTimeCommandBuffer::begin_recording() {
+    //information for allocating the command buffer
+    VkCommandBufferAllocateInfo allocInfo{};                            //https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkCommandBufferAllocateInfo.html
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;   //sType must be VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;                  //should the command buffer be primary or secondary
+    // - VK_COMMAND_BUFFER_LEVEL_PRIMARY: Can be submitted to a queue for execution, but cannot be called from other command buffers
+    // - VK_COMMAND_BUFFER_LEVEL_SECONDARY: Cannot be submitted directly, but can be called from primary command buffers.
+    //secondary command buffers are useful for reusing common operations
+    allocInfo.commandPool = command_pool.get_command_pool();            //the command pool with which to allocate the command buffer
+    allocInfo.commandBufferCount = 1;                                   //the number of command buffers to allocate (only need 1)
+
+    vkAllocateCommandBuffers(device.get_device(), &allocInfo, &commandBuffer);
+
+    //start recording the copying commands
+    // -  all commands that are to be recorded have the vkCmd prefix
+    VkCommandBufferBeginInfo beginInfo{};                           //https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkCommandBufferBeginInfo.html
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;  //sType must be VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;  //specifies the buffers usage - https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkCommandBufferUsageFlagBits.html
+    // - VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT: The command buffer will be rerecorded right after executing it once.
+    // - VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT: This is a secondary command buffer that will be entirely within a single render pass.
+    // - VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT: The command buffer can be resubmitted while it is also already pending execution.
+    //it is good practice to tell the driver that we are only going to be using this command buffer once
+    beginInfo.pInheritanceInfo = nullptr;                           //only relevant to secondary command buffers
+    // - It specifies which state to inherit from the calling primary command buffers.
+    //https://khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkCommandBufferInheritanceInfo.html
+
+    //start recording the command buffers
+    // - If the command buffer was already recorded once, then a call to vkBeginCommandBuffer will implicitly reset it.
+    // - It's not possible to append commands to a buffer at a later time.
+    // - commands can either be inline or secondary: https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkSubpassContents.html
+    //    > VK_SUBPASS_CONTENTS_INLINE: The render pass commands will be embedded in the primary command buffer itself and no secondary command buffers will be executed
+    //    > VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS: The render pass commands will be executed from secondary command buffers.
+    if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+        throw std::runtime_error("failed to begin recording command buffer!");
+    }
+}
+
+void SingleTimeCommandBuffer::execute_recording() {
+    //end recording the command buffer
+    vkEndCommandBuffer(commandBuffer);
+
+    //submitting the command buffer
+    // - want to perform the copy right now
+    // - there are no semaphores or fences to wait on
+    VkSubmitInfo submitInfo{};                          //https://khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkSubmitInfo.html
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;   //sType must be VK_STRUCTURE_TYPE_SUBMIT_INFO
+    submitInfo.commandBufferCount = 1;                  //the number of command buffers to execute (only the 1 we just created)
+    submitInfo.pCommandBuffers = &commandBuffer;        //the array of command buffers to execute (only the 1 we just created)
+
+    //submitting the command buffer to the graphics queue
+    // - this is slightly suboptimal and there should be a dedicated transfer queue
+    // - see Transfer queue int the link below for how to do this
+    //   > https://vulkan-tutorial.com/Vertex_buffers/Staging_buffer
+    vkQueueSubmit(device.graphics_queue, 1, &submitInfo, VK_NULL_HANDLE);
+
+    //waiting for this copy to complete
+    // - We could use a fence and wait with vkWaitForFences
+    // - A fence would allow you to schedule multiple transfers simultaneously and wait for all of them complete, instead of executing one at a time.
+    // - That may give the driver more opportunities to optimize.
+    vkQueueWaitIdle(device.graphics_queue);
+
+    //want to cleanup up the command buffer right now
+    // - this is normally done when the program finishes but it doesn't make sense to keep this buffer around for the lifetime of the program
+
+    vkFreeCommandBuffers(device.get_device(), command_pool.get_command_pool(), 1, &commandBuffer); //https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/vkFreeCommandBuffers.html
+}
+
+
+
 //size is size in bytes
 //very few of these buffers should be created. On high end graphics cards there is a maximum of around 4000 possible.
 //Should create one big buffers and use offsets to access the data inside it
@@ -88,46 +158,9 @@ void create_buffer(LogicalDevice &device, VkDeviceSize size, VkBufferUsageFlags 
 }
 
 
-
-
-
-
 void copyBuffer(LogicalDevice &device, CommandPool& command_pool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
-    //creating a command buffer to hold the copying commands
-    VkCommandBufferAllocateInfo allocInfo{};                            //https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkCommandBufferAllocateInfo.html
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;   //sType must be VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;                  //should the command buffer be primary or secondary
-                                                                        // - VK_COMMAND_BUFFER_LEVEL_PRIMARY: Can be submitted to a queue for execution, but cannot be called from other command buffers
-                                                                        // - VK_COMMAND_BUFFER_LEVEL_SECONDARY: Cannot be submitted directly, but can be called from primary command buffers.
-                                                                        //secondary command buffers are useful for reusing common operations
-    allocInfo.commandPool = command_pool.get_command_pool();            //the command pool with which to allocate the command buffer
-    allocInfo.commandBufferCount = 1;                                   //the number of command buffers to allocate (only need 1)
-
-    VkCommandBuffer commandBuffer;
-    vkAllocateCommandBuffers(device.get_device(), &allocInfo, &commandBuffer);
-
-    //start recording the copying commands
-    // -  all commands that are to be recorded have the vkCmd prefix
-    VkCommandBufferBeginInfo beginInfo{};                           //https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkCommandBufferBeginInfo.html
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;  //sType must be VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;  //specifies the buffers usage - https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkCommandBufferUsageFlagBits.html
-                                                                    // - VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT: The command buffer will be rerecorded right after executing it once.
-                                                                    // - VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT: This is a secondary command buffer that will be entirely within a single render pass.
-                                                                    // - VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT: The command buffer can be resubmitted while it is also already pending execution.
-                                                                    //it is good practice to tell the driver that we are only going to be using this command buffer once
-    beginInfo.pInheritanceInfo = nullptr;                           //only relevant to secondary command buffers
-                                                                    // - It specifies which state to inherit from the calling primary command buffers.
-                                                                    //https://khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkCommandBufferInheritanceInfo.html
-
-    //start recording the command buffers
-    // - If the command buffer was already recorded once, then a call to vkBeginCommandBuffer will implicitly reset it.
-    // - It's not possible to append commands to a buffer at a later time.
-    // - commands can either be inline or secondary: https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkSubpassContents.html
-    //    > VK_SUBPASS_CONTENTS_INLINE: The render pass commands will be embedded in the primary command buffer itself and no secondary command buffers will be executed
-    //    > VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS: The render pass commands will be executed from secondary command buffers.
-    if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
-        throw std::runtime_error("failed to begin recording command buffer!");
-    }
+    SingleTimeCommandBuffer command_buffer(device, command_pool);
+    command_buffer.begin_recording();
 
     //specifying how to copy from one buffer to the other
     VkBufferCopy copyRegion{};  //https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkBufferCopy.html
@@ -138,38 +171,10 @@ void copyBuffer(LogicalDevice &device, CommandPool& command_pool, VkBuffer srcBu
     copyRegion.size = size;     //starting offset in bytes from the start of dstBuffer.
     //actually copying the data between the buffers
     // - https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/vkCmdCopyBuffer.html
-    vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+    vkCmdCopyBuffer(command_buffer.get_buffer(), srcBuffer, dstBuffer, 1, &copyRegion);
     //the last argument is technically an array of regions to copy
     //the second to last argument is how many regions there are
 
-    //end recording the command buffer
-    // - only really need the one command
-    vkEndCommandBuffer(commandBuffer);
-
-    //submitting the command buffer
-    // - want to perform the copy right now
-    // - there are no semaphores or fences to wait on
-    VkSubmitInfo submitInfo{};                          //https://khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkSubmitInfo.html
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;   //sType must be VK_STRUCTURE_TYPE_SUBMIT_INFO
-    submitInfo.commandBufferCount = 1;                  //the number of command buffers to execute (only the 1 we just created)
-    submitInfo.pCommandBuffers = &commandBuffer;        //the array of command buffers to execute (only the 1 we just created)
-
-    //submitting the command buffer to the graphics queue
-    // - this is slightly suboptimal and there should be a dedicated transfer queue
-    // - see Transfer queue int the link below for how to do this
-    //   > https://vulkan-tutorial.com/Vertex_buffers/Staging_buffer
-    vkQueueSubmit(device.graphics_queue, 1, &submitInfo, VK_NULL_HANDLE);
-
-    //waiting for this copy to complete
-    // - We could use a fence and wait with vkWaitForFences
-    // - A fence would allow you to schedule multiple transfers simultaneously and wait for all of them complete, instead of executing one at a time.
-    // - That may give the driver more opportunities to optimize.
-    vkQueueWaitIdle(device.graphics_queue);
-
-    //want to cleanup up the command buffer right now
-    // - this is normally done when the program finishes but it doesn't make sense to keep this buffer around for the lifetime of the program
-
-    vkFreeCommandBuffers(device.get_device(), command_pool.get_command_pool(), 1, &commandBuffer); //https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/vkFreeCommandBuffers.html
-
+    command_buffer.execute_recording();
 }
 

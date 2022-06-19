@@ -3,3 +3,4 @@
 /.idea/
 /shader_bytecode/
 /cmake-build-debug-coverage/
+/dependencies/

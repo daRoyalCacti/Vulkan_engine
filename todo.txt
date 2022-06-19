@@ -35,3 +35,15 @@ Abstract uniform_buffer_objects
 
 Update the uniform buffer object to interact with the camera class when created
     currently just have hard coded values for everything (fov, nearplane, etc.)
+
+Do not always load images with an alpha channel
+    currently an stb_image flag is set to always load images with an alpha channel
+    this is not so good for memory use
+
+Save memory types (buffer.cpp)
+    currently everytime a buffer is created it finds the memory type required by the buffer
+    but buffers with the same usage should (hopefully) use the memory type
+
+Combine single use command buffers into into a larger queue
+    Currently wait for each queue to become idle
+    These queues are used a lot when uploading images to the GPU
