@@ -20,10 +20,11 @@ struct LogicalDevice {
     VkQueue present_queue{};   //handle to the present queue --- used to request presenting based commands
 
     //setting the device features that we'll be needing (e.g. geometry shader)
-    // - don't required anything special right now so just leaving this blank
-    static constexpr VkPhysicalDeviceFeatures required_device_features{};
+    // - https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VkPhysicalDeviceFeatures.html
+    // - This is not device extensions required. This is specified in physical_device.hpp
+    VkPhysicalDeviceFeatures required_device_features{};
 
-    explicit LogicalDevice(PhysicalDevice & pd, QueueFamily &q) : physical_device(pd), queue_family(q) {}
+    explicit LogicalDevice(PhysicalDevice & pd, QueueFamily &q) : physical_device(pd), queue_family(q) {required_device_features.samplerAnisotropy = true;}
     [[nodiscard]] VkDevice get_device() const {return device;}
 
     void setup();

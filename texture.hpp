@@ -24,6 +24,8 @@ struct Texture {
 
     const std::string_view texture_path;
 
+    [[nodiscard]] VkImage& get_image() {return textureImage;}
+
 
 private:
     LogicalDevice& device;

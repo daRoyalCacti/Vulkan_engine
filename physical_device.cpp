@@ -98,7 +98,13 @@ bool PhysicalDevice::isDeviceSuitable(VkPhysicalDevice device) {
         swap_chain_good = true;
     }
 
-    return extensions_supported && queue_family_good && swap_chain_good;
+    //checking if anisotopy is supported (for textures)
+    VkPhysicalDeviceFeatures supportedFeatures;
+    vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+    const auto anisotropy_good = supportedFeatures.samplerAnisotropy;
+
+
+    return extensions_supported && queue_family_good && swap_chain_good && anisotropy_good;
 }
 
 bool PhysicalDevice::checkDeviceExtensionSupport(VkPhysicalDevice device) {

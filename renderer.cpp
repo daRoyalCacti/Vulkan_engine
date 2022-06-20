@@ -67,6 +67,12 @@ void Renderer::initVulkan() {
     //creating the texture
     texture.setup();
 
+    //creating the views into the 1 texture
+    texture_view.setup();
+
+    //creating how the shader accesses images (this is independent of any specific texture)
+    texture_sampler.setup(VK_FILTER_LINEAR, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT);
+
     //creating and filling the vertex buffer
     // - must be done before command buffers are created
     vertex_buffer_triangle.setup();
@@ -112,6 +118,12 @@ void Renderer::cleanup() {
     //destroying the vertex buffers
     vertex_buffer_square.cleanup();
     vertex_buffer_triangle.cleanup();
+
+    //destroying how the shader accesses images
+    texture_sampler.cleanup();
+
+    //destroying the view into a texture
+    texture_view.cleanup();
 
     //destroying the texture
     texture.cleanup();

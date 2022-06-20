@@ -169,7 +169,7 @@ void copy_buffer_to_image(LogicalDevice device, CommandPool command_pool, VkBuff
 
     region.imageOffset = {0, 0, 0};                             //the initial (x,y,z) offsets in texels
     region.imageExtent = {width, height, 1};                      //size of the region being copied into
-                                                                        // - https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VkExtent3D.html
+                                                                         // - https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VkExtent3D.html
 
 
     //actually specifying the copy

@@ -49,6 +49,7 @@ void LogicalDevice::setup() {
     //create the handle to the queues requested
     vkGetDeviceQueue(device, queue_family.graphicsFamily.value(), 0, &graphics_queue);
     vkGetDeviceQueue(device, queue_family.presentFamily.value(), 0, &present_queue);
+
 }
 
 void LogicalDevice::cleanup() const {

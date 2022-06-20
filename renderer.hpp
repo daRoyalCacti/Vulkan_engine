@@ -30,6 +30,8 @@
 #include "descriptor_pool.hpp"
 #include "descriptor_set.hpp"
 #include "texture.hpp"
+#include "texture_view.hpp"
+#include "texture_sampler.hpp"
 
 constexpr std::string_view vertex_shader_location1 = "../shader_bytecode/2D_vc_vert.spv";
 constexpr std::string_view fragment_shader_location1 = "../shader_bytecode/2D_vc_frag.spv";
@@ -67,7 +69,8 @@ struct Renderer {
                                    semaphores(logical_device), fences(logical_device), vertex_buffer_triangle(logical_device, command_pool, vertices_triangle),
             vertex_buffer_square(logical_device, command_pool, vertices_square), index_buffer_square(logical_device, command_pool, indices_square),
             descriptor_set_layout(logical_device), uniform_buffer_object(logical_device, swap_chain), descriptor_pool(logical_device, swap_chain),
-                                   descriptor_set(logical_device, swap_chain, uniform_buffer_object, descriptor_pool, descriptor_set_layout), texture(logical_device, command_pool, texture_image){}
+                                   descriptor_set(logical_device, swap_chain, uniform_buffer_object, descriptor_pool, descriptor_set_layout), texture(logical_device, command_pool, texture_image),
+                                   texture_view(logical_device, texture), texture_sampler(logical_device){}
 #else
     explicit Renderer(Window& w) : window(w), logical_device(physical_device, queue_family), queue_family(physical_device.physicalDevice, surface.surface),
         surface(window, instance), physical_device(instance, surface) , swap_chain(window, logical_device, surface, queue_family) ,
@@ -80,7 +83,8 @@ struct Renderer {
        semaphores(logical_device), fences(logical_device), vertex_buffer_triangle(logical_device, command_pool, vertices_triangle),
             vertex_buffer_square(logical_device, command_pool, vertices_square), index_buffer_square(logical_device, command_pool, indices_square),
             descriptor_set_layout(logical_device), uniform_buffer_object(logical_device, swap_chain), descriptor_pool(logical_device, swap_chain),
-                                   descriptor_set(logical_device, swap_chain, uniform_buffer_object, descriptor_pool, descriptor_set_layout), texture(logical_device, command_pool, texture_image){}
+                                   descriptor_set(logical_device, swap_chain, uniform_buffer_object, descriptor_pool, descriptor_set_layout), texture(logical_device, command_pool, texture_image),
+                                   texture_view(logical_device, texture), texture_sampler(logical_device){}
 #endif
     void initVulkan();
     void cleanup();
@@ -170,6 +174,13 @@ private:
 
     //structure to hold and image
     Texture texture;
+
+    //structure to allow the gpu to access the images
+    TextureView texture_view;
+
+    //structure specifying how the shader is to interface with images when there are more/less texels than fragments
+    // - the settings for this are specified in the setup function
+    TextureSampler texture_sampler;
 };
 
 

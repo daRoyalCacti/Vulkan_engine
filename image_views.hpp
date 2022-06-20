@@ -9,6 +9,9 @@
 #include <vulkan/vulkan.h>
 #include "swap_chain.hpp"
 
+//helper function for creating image views
+void createImageView(LogicalDevice device, VkImage image, VkFormat format, VkImageView &imageView);
+
 //to use any VkImage we have to use a VkImageView object
 // - it is just a view into the image
 // - it describes what part of the image to acess
