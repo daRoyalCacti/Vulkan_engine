@@ -17,12 +17,25 @@ struct DescriptorPool {
 
     DescriptorPool(LogicalDevice &d, SwapChain &s) : device(d), swap_chain(s) {}
 
-    void setup();
-    void cleanup();
+    virtual void setup() {}
+    void cleanup() {vkDestroyDescriptorPool(device.get_device(), descriptorPool, nullptr);}
 
-private:
+protected:
     LogicalDevice& device;
     SwapChain& swap_chain;
+};
+
+
+//holds the memory for the descriptor sets
+struct DescriptorPool1 : public DescriptorPool {
+    DescriptorPool1(LogicalDevice &d, SwapChain &s) : DescriptorPool(d,s) {}
+    void setup() override;
+};
+
+//holds the memory for the descriptor sets
+struct DescriptorPool2 : public DescriptorPool {
+    DescriptorPool2(LogicalDevice &d, SwapChain &s) : DescriptorPool(d,s) {}
+    void setup() override;
 };
 
 

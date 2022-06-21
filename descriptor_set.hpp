@@ -16,7 +16,7 @@
 /*It is actually possible to bind multiple descriptor sets simultaneously.
  * You need to specify a descriptor layout for each descriptor set when creating the pipeline layout.
  * Shaders can then reference specific descriptor sets like this:
-        layout(set = 0, binding = 0) uniform UniformBufferObject { ... }
+        layout(set = 0, binding = 0) uniform UniformBufferObject1 { ... }
  * You can use this feature to put descriptors that vary per-object and descriptors that are shared into separate descriptor sets.
  * In that case you avoid rebinding most of the descriptors across draw calls which is potentially more efficient.
  */
@@ -27,17 +27,38 @@ struct DescriptorSet {
 
     [[nodiscard]] std::vector<VkDescriptorSet>& get_sets() {return descriptorSets;}
 
-    DescriptorSet(LogicalDevice& d, SwapChain &s, UniformBufferObject &ubo, DescriptorPool& p, DescriptorSetLayout &l)
-    : device(d), swap_chain(s), UBO(ubo), descriptor_pool(p), descriptor_set_layout(l) {}
+    DescriptorSet(LogicalDevice& d, SwapChain &s, DescriptorPool& p, DescriptorSetLayout &l)
+            : device(d), swap_chain(s), descriptor_pool(p), descriptor_set_layout(l) {}
 
-    void setup();
+    virtual void setup(){}
 
-private:
+protected:
     LogicalDevice &device;
     SwapChain &swap_chain;
-    UniformBufferObject &UBO;
     DescriptorPool &descriptor_pool;
     DescriptorSetLayout &descriptor_set_layout;
+};
+
+
+struct DescriptorSet1 : public DescriptorSet{
+    DescriptorSet1(LogicalDevice& d, SwapChain &s, UniformBufferObject &ubo, DescriptorPool& p, DescriptorSetLayout &l)
+    : DescriptorSet(d, s, p, l), UBO(ubo) {}
+
+    void setup() override;
+
+private:
+    UniformBufferObject &UBO;
+};
+
+
+struct DescriptorSet2 : public DescriptorSet{
+    DescriptorSet2(LogicalDevice& d, SwapChain &s, UniformBufferObject &ubo, DescriptorPool& p, DescriptorSetLayout &l)
+            : DescriptorSet(d, s, p, l), UBO(ubo) {}
+
+    void setup() override;
+
+private:
+    UniformBufferObject &UBO;
 };
 
 

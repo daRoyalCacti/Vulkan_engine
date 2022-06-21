@@ -39,6 +39,9 @@ constexpr std::string_view fragment_shader_location1 = "../shader_bytecode/2D_vc
 constexpr std::string_view vertex_shader_location2 = "../shader_bytecode/2D_vc_mvp_vert.spv";
 constexpr std::string_view fragment_shader_location2 = "../shader_bytecode/2D_vc_mvp_frag.spv";
 
+constexpr std::string_view vertex_shader_location3 = "../shader_bytecode/2D_vc_mvp_vert_tex.spv";
+constexpr std::string_view fragment_shader_location3 = "../shader_bytecode/2D_vc_mvp_frag_tex.spv";
+
 constexpr std::string_view texture_image = "../textures/statue.jpg";
 
 struct Renderer {
@@ -57,6 +60,13 @@ struct Renderer {
             0, 1, 2, 2, 3, 0
     };
 
+    std::vector<Vertex::TWOD_VC> vertices_square2 = {
+            {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+            {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+            {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+            {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+    };
+
 
 #ifdef VALDIATION_LAYERS
     explicit Renderer(Window& w) : window(w), debug_messenger(instance), logical_device(physical_device, queue_family), queue_family(physical_device.physicalDevice, surface.surface),
@@ -64,12 +74,15 @@ struct Renderer {
             image_views(swap_chain, logical_device),
             graphics_pipeline1(logical_device, swap_chain, render_pass, nullptr, vertex_shader_location1,  fragment_shader_location1),
            graphics_pipeline2(logical_device, swap_chain, render_pass, &descriptor_set_layout, vertex_shader_location2,  fragment_shader_location2),
+                                   graphics_pipeline3(logical_device, swap_chain, render_pass, &descriptor_set_layout2, vertex_shader_location3,  fragment_shader_location3),
            render_pass(logical_device, swap_chain), framebuffers(logical_device, image_views, render_pass, swap_chain), command_pool(logical_device, queue_family),
-           command_buffers(logical_device, command_pool, framebuffers, render_pass, swap_chain, graphics_pipeline1, graphics_pipeline2, vertex_buffer_triangle, vertex_buffer_square, index_buffer_square, descriptor_set),
+           command_buffers(logical_device, command_pool, framebuffers, render_pass, swap_chain, graphics_pipeline1, graphics_pipeline2, graphics_pipeline3,vertex_buffer_triangle, vertex_buffer_square, index_buffer_square, descriptor_set, vertex_buffer_square2, descriptor_set2),
                                    semaphores(logical_device), fences(logical_device), vertex_buffer_triangle(logical_device, command_pool, vertices_triangle),
-            vertex_buffer_square(logical_device, command_pool, vertices_square), index_buffer_square(logical_device, command_pool, indices_square),
-            descriptor_set_layout(logical_device), uniform_buffer_object(logical_device, swap_chain), descriptor_pool(logical_device, swap_chain),
-                                   descriptor_set(logical_device, swap_chain, uniform_buffer_object, descriptor_pool, descriptor_set_layout), texture(logical_device, command_pool, texture_image),
+            vertex_buffer_square(logical_device, command_pool, vertices_square), index_buffer_square(logical_device, command_pool, indices_square), vertex_buffer_square2(logical_device, command_pool, vertices_square),
+            descriptor_set_layout(logical_device), descriptor_set_layout2(logical_device), uniform_buffer_object(logical_device, swap_chain), descriptor_pool(logical_device, swap_chain),
+                                   uniform_buffer_object2(logical_device, swap_chain), descriptor_pool2(logical_device, swap_chain),
+                                   descriptor_set(logical_device, swap_chain, uniform_buffer_object, descriptor_pool, descriptor_set_layout), descriptor_set2(logical_device, swap_chain, uniform_buffer_object2, descriptor_pool2, descriptor_set_layout2),
+                                   texture(logical_device, command_pool, texture_image),
                                    texture_view(logical_device, texture), texture_sampler(logical_device){}
 #else
     explicit Renderer(Window& w) : window(w), logical_device(physical_device, queue_family), queue_family(physical_device.physicalDevice, surface.surface),
@@ -77,13 +90,16 @@ struct Renderer {
         image_views(swap_chain, logical_device),
        graphics_pipeline1(logical_device, swap_chain, render_pass, nullptr, vertex_shader_location1,  fragment_shader_location1),
        graphics_pipeline2(logical_device, swap_chain, render_pass, &descriptor_set_layout, vertex_shader_location2,  fragment_shader_location2),
+       graphics_pipeline3(logical_device, swap_chain, render_pass, &descriptor_set_layout2, vertex_shader_location3,  fragment_shader_location3),
         render_pass(logical_device, swap_chain),
         framebuffers(logical_device, image_views, render_pass, swap_chain), command_pool(logical_device, queue_family),
-       command_buffers(logical_device, command_pool, framebuffers, render_pass, swap_chain, graphics_pipeline1, graphics_pipeline2, vertex_buffer_triangle, vertex_buffer_square, index_buffer_square, descriptor_set),
+       command_buffers(logical_device, command_pool, framebuffers, render_pass, swap_chain, graphics_pipeline1, graphics_pipeline2, graphics_pipeline3,vertex_buffer_triangle, vertex_buffer_square, index_buffer_square, descriptor_set, vertex_buffer_square2, descriptor_set2),
        semaphores(logical_device), fences(logical_device), vertex_buffer_triangle(logical_device, command_pool, vertices_triangle),
-            vertex_buffer_square(logical_device, command_pool, vertices_square), index_buffer_square(logical_device, command_pool, indices_square),
-            descriptor_set_layout(logical_device), uniform_buffer_object(logical_device, swap_chain), descriptor_pool(logical_device, swap_chain),
-                                   descriptor_set(logical_device, swap_chain, uniform_buffer_object, descriptor_pool, descriptor_set_layout), texture(logical_device, command_pool, texture_image),
+            vertex_buffer_square(logical_device, command_pool, vertices_square), index_buffer_square(logical_device, command_pool, indices_square), vertex_buffer_square2(logical_device, command_pool, vertices_square),
+            descriptor_set_layout(logical_device), descriptor_set_layout2(logical_device), uniform_buffer_object(logical_device, swap_chain), descriptor_pool(logical_device, swap_chain),
+            uniform_buffer_object2(logical_device, swap_chain), descriptor_pool2(logical_device, swap_chain),
+                                   descriptor_set(logical_device, swap_chain, uniform_buffer_object, descriptor_pool, descriptor_set_layout), descriptor_set2(logical_device, swap_chain, uniform_buffer_object2, descriptor_pool2, descriptor_set_layout2),
+                                   texture(logical_device, command_pool, texture_image),
                                    texture_view(logical_device, texture), texture_sampler(logical_device){}
 #endif
     void initVulkan();
@@ -129,8 +145,9 @@ private:
     ImageViews image_views;
 
     //the graphics pipeline --- how all the rendering gets done
-    GraphicsPipeline graphics_pipeline1;
-    GraphicsPipeline graphics_pipeline2;
+    GraphicsPipeline graphics_pipeline1;    //boring
+    GraphicsPipeline graphics_pipeline2;    //MVP
+    GraphicsPipeline graphics_pipeline3;    //MVP with textures
 
     //render pass -- how the framebuffer is written to
     RenderPass render_pass;
@@ -139,16 +156,20 @@ private:
     Framebuffers framebuffers;
 
     //UBO -- holds the data for the shader
-    UniformBufferObject uniform_buffer_object;
+    UniformBufferObject1 uniform_buffer_object;
+    UniformBufferObject2 uniform_buffer_object2;
 
     //descriptor set layouts -- the layout of the data being passed to the shader
-    DescriptorSetLayout descriptor_set_layout;
+    DescriptorSetLayout1 descriptor_set_layout;
+    DescriptorSetLayout2 descriptor_set_layout2;
 
     //descriptor pool --- holds the memory for the descriptor sets
-    DescriptorPool descriptor_pool;
+    DescriptorPool1 descriptor_pool;
+    DescriptorPool2 descriptor_pool2;
 
     //descriptor set -- like command buffers but for descriptors
-    DescriptorSet descriptor_set;
+    DescriptorSet1 descriptor_set;
+    DescriptorSet2 descriptor_set2;
 
     //memory to store command buffers
     CommandPool command_pool;
@@ -168,6 +189,7 @@ private:
     //structure to hold the vertex data
     VertexBuffer<Vertex::TWOD_VC> vertex_buffer_triangle;
     VertexBuffer<Vertex::TWOD_VC> vertex_buffer_square;
+    VertexBuffer<Vertex::TWOD_VC> vertex_buffer_square2;
 
     //structure to hold index data
     IndexBuffer<uint16_t> index_buffer_square;

@@ -40,21 +40,26 @@ void Renderer::initVulkan() {
     //setting up the uniform buffer object
     // - must be created before the descriptor set
     uniform_buffer_object.setup();
+    uniform_buffer_object2.setup();
 
     //creating the layout for passing data to the shaders
     // - must be done before pipeline is created
     descriptor_set_layout.setup();
+    descriptor_set_layout2.setup();
 
     //creating the descriptor pool
     descriptor_pool.setup();
+    descriptor_pool2.setup();
 
     //creating the descriptor sets
     descriptor_set.setup();
+    descriptor_set2.setup();
 
     //creating the render pass -- must be done before creating the graphics pipeline
     render_pass.setup();
 
     //creating the graphics pipeline
+    graphics_pipeline3.setup();
     graphics_pipeline2.setup();
     graphics_pipeline1.setup();
 
@@ -77,6 +82,7 @@ void Renderer::initVulkan() {
     // - must be done before command buffers are created
     vertex_buffer_triangle.setup();
     vertex_buffer_square.setup();
+    vertex_buffer_square2.setup();
 
     //creating the index buffers
     // - must be done before command buffers are created
@@ -105,17 +111,21 @@ void Renderer::cleanup() {
 
     //destorying the UBOs
     uniform_buffer_object.cleanup();
+    uniform_buffer_object2.cleanup();
 
     //destroying the descriptor pools
     descriptor_pool.cleanup();
+    descriptor_pool2.cleanup();
 
     //destroying the descriptor set layout
     descriptor_set_layout.cleanup();
+    descriptor_set_layout2.cleanup();
 
     //destroying the index buffers
     index_buffer_square.cleanup();
 
     //destroying the vertex buffers
+    vertex_buffer_square2.cleanup();
     vertex_buffer_square.cleanup();
     vertex_buffer_triangle.cleanup();
 
@@ -137,6 +147,7 @@ void Renderer::cleanup() {
     //destroying the graphics pipeline
     graphics_pipeline1.cleanup();
     graphics_pipeline2.cleanup();
+    graphics_pipeline3.cleanup();
 
     //destroying the render pass
     render_pass.cleanup();
@@ -198,6 +209,7 @@ void Renderer::drawFrame() {
 
     //updating the uniform buffers
     uniform_buffer_object.update(imageIndex);
+    uniform_buffer_object2.update(imageIndex);
 
     //submitting the command buffer
     //=============================
@@ -277,7 +289,9 @@ void Renderer::recreateSwapChain() {
     // - cleaning up up everything that needs to be recreated (generally in the reverse order that they are created)
     //=========================
     descriptor_pool.cleanup();
+    descriptor_pool2.cleanup();
     uniform_buffer_object.cleanup();
+    uniform_buffer_object2.cleanup();
     framebuffers.cleanup();
     //we could recreate the command pool from scratch but this is wasteful
     //just cleaning up the existing command buffers
@@ -285,6 +299,7 @@ void Renderer::recreateSwapChain() {
     vkFreeCommandBuffers(logical_device.get_device(), command_pool.get_command_pool(), static_cast<unsigned>(command_buffers.get_command_buffers().size()), command_buffers.get_command_buffers().data() );
     graphics_pipeline1.cleanup();
     graphics_pipeline2.cleanup();
+    graphics_pipeline3.cleanup();
     render_pass.cleanup();
     image_views.cleanup();
     swap_chain.cleanup();
@@ -298,9 +313,13 @@ void Renderer::recreateSwapChain() {
                                 // - the format of the images shouldn't change during window resize but just catching the edge case
     graphics_pipeline1.setup(); //viewport and scissor changes so the graphics pipeline needs to be recreated
     graphics_pipeline2.setup(); // - could avoid this using dynamic states for the viewport and the scissors
+    graphics_pipeline3.setup();
     framebuffers.setup();       //frame buffers and command buffers depend directly on the swap chain images
     uniform_buffer_object.setup();  //the UBOs depend on the number of images in the swapchain
+    uniform_buffer_object2.setup();
     descriptor_pool.setup();        //depends on the number of images in the swapchain
+    descriptor_pool2.setup();
     descriptor_set.setup();         //  ditto
+    descriptor_set2.setup();
     command_buffers.setup();
 }

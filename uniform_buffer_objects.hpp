@@ -21,7 +21,7 @@ namespace UBO {
 }
 
 //the buffer that holds the data for the shaders
-struct UniformBufferObject{
+struct UniformBufferObject {
     //We should have multiple buffers, because multiple frames may be in flight at the same time,
     //and we don't want to update the buffer in preparation of the next frame while a previous one is still reading from it!
     std::vector<VkBuffer> uniformBuffers;
@@ -33,12 +33,24 @@ struct UniformBufferObject{
 
     void setup();
     void cleanup();
-    void update(unsigned image_index);
+    virtual void update(unsigned image_index) {}
 
 
-private:
+protected:
     LogicalDevice &device;
     SwapChain &swap_chain;
+};
+
+//rotating
+struct UniformBufferObject1 : public UniformBufferObject{
+    UniformBufferObject1(LogicalDevice& d, SwapChain &s) : UniformBufferObject(d,s) {}
+    void update(unsigned image_index) override;
+};
+
+//rotating but about a different axis
+struct UniformBufferObject2 : public UniformBufferObject{
+    UniformBufferObject2(LogicalDevice& d, SwapChain &s) : UniformBufferObject(d,s) {}
+    void update(unsigned image_index) override;
 };
 
 #endif //VULKAN_ENGINE_UNIFORM_BUFFER_OBJECTS_HPP

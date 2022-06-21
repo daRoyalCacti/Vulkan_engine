@@ -5,6 +5,7 @@
 #include "command_buffers.hpp"
 
 #include <stdexcept>
+#include <iostream>
 
 void CommandBuffers::setup() {
     commandBuffers.resize(frame_buffers.swapChainFramebuffers.size());  //command buffer for every frame buffer
@@ -111,6 +112,25 @@ void CommandBuffers::setup() {
         vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(index_buffer.indices.size()), 1, 0, 0, 0);
 
 
+        //drawing the second square
+        //==========================================================
+        //using a different pipeline because using a different shader to draw this
+        // - not can just have multiple calls to vkCmdDraw and/or vkCmdDrawIndexed in the same graphics pipeline
+        vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline3.get_pipeline());
+
+        //note this is no done optimally
+        //should have the vertex and index buffers as one big buffer and use offsets
+        VkBuffer vertexBuffers3[] = {vertex_buffer3.vertexBuffer};
+        VkDeviceSize offsets3[] = {0};
+        vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers3, offsets3);
+
+        vkCmdBindIndexBuffer(commandBuffers[i], index_buffer.indexBuffer, 0, VK_INDEX_TYPE_UINT16);  //index buffer uses 16bit integers
+
+        //binding the descriptor set
+        // - i.e. updating the layout values in the shader
+        vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline3.pipeline_layout, 0, 1, &descriptor_set2.get_sets()[i], 0, nullptr);
+
+        vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(index_buffer.indices.size()), 1, 0, 0, 0);
 
         //no longer recording to the render pass
         vkCmdEndRenderPass(commandBuffers[i]);

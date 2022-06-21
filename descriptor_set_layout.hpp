@@ -7,8 +7,6 @@
 
 #include "logical_device.hpp"
 
-//The descriptor layout specifies the types of resources that are going to be accessed by the pipeline
-// - it also includes the binding=x in the shaders
 struct DescriptorSetLayout {
     VkDescriptorSetLayout descriptorSetLayout{};    //https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkDescriptorSetLayout.html
 
@@ -16,11 +14,29 @@ struct DescriptorSetLayout {
 
     explicit DescriptorSetLayout(LogicalDevice &d) : device(d) {}
 
-    void setup();
-    void cleanup();
+    virtual void setup() {}
+    virtual void cleanup() {}
 
-private:
+protected:
     LogicalDevice& device;
+};
+
+
+//The descriptor layout specifies the types of resources that are going to be accessed by the pipeline
+// - it also includes the binding=x in the shaders
+struct DescriptorSetLayout1 : public DescriptorSetLayout {
+    explicit DescriptorSetLayout1(LogicalDevice &d) : DescriptorSetLayout(d) {}
+
+    void setup() override;
+    void cleanup() override;
+};
+
+
+struct DescriptorSetLayout2 : public DescriptorSetLayout  {
+    explicit DescriptorSetLayout2(LogicalDevice &d) : DescriptorSetLayout(d) {}
+
+    void setup() override;
+    void cleanup() override;
 };
 
 
