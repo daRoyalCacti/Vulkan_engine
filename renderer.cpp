@@ -42,6 +42,18 @@ void Renderer::initVulkan() {
     uniform_buffer_object.setup();
     uniform_buffer_object2.setup();
 
+    //creating command pools
+    command_pool.setup();
+
+    //creating the texture
+    texture.setup();
+
+    //creating the views into the 1 texture
+    texture_view.setup();
+
+    //creating how the shader accesses images (this is independent of any specific texture)
+    texture_sampler.setup(VK_FILTER_LINEAR, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT);
+
     //creating the layout for passing data to the shaders
     // - must be done before pipeline is created
     descriptor_set_layout.setup();
@@ -66,17 +78,6 @@ void Renderer::initVulkan() {
     //creating the framebufers
     framebuffers.setup();
 
-    //creating command pools
-    command_pool.setup();
-
-    //creating the texture
-    texture.setup();
-
-    //creating the views into the 1 texture
-    texture_view.setup();
-
-    //creating how the shader accesses images (this is independent of any specific texture)
-    texture_sampler.setup(VK_FILTER_LINEAR, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT);
 
     //creating and filling the vertex buffer
     // - must be done before command buffers are created

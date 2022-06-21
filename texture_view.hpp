@@ -15,6 +15,8 @@ struct TextureView {
     void setup();
     void cleanup() { vkDestroyImageView(device.get_device(), textureImageView, nullptr); }
 
+    [[nodiscard]] VkImageView get_view() {return textureImageView;}
+
 private:
     Texture& texture;
     LogicalDevice& device;

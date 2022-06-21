@@ -56,11 +56,23 @@ void DescriptorSetLayout2::setup() {
     // - can be any combination of the flags in the link above
     uboLayoutBinding.pImmutableSamplers = nullptr;                          //only relevant for image sampling related descriptors (get to this later)
 
+
+    //the descriptor for the image
+    VkDescriptorSetLayoutBinding samplerLayoutBinding{};
+    samplerLayoutBinding.binding = 1;                                                   //image is at binding 1 in the shader
+    samplerLayoutBinding.descriptorCount = 1;
+    samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    samplerLayoutBinding.pImmutableSamplers = nullptr;
+    samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;                     //texture goes to the fragment shader
+                                                                                        // - images in the vertex shader can be used to generate height maps
+
+
     //descriptor bindings are combined into a single VkDescriptorSetLayout object
+    std::array<VkDescriptorSetLayoutBinding, 2> bindings = {uboLayoutBinding, samplerLayoutBinding};
     VkDescriptorSetLayoutCreateInfo layoutInfo{};                           //https://khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkDescriptorSetLayoutCreateInfo.html
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO; //sType must be VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO
-    layoutInfo.bindingCount = 1;                                            //the total number of bindings
-    layoutInfo.pBindings = &uboLayoutBinding;                               //the array of bindings to use
+    layoutInfo.bindingCount = bindings.size();                              //the total number of bindings
+    layoutInfo.pBindings = bindings.data();                                 //the array of bindings to use
 
     //actually creating the descriptor set layout
     if (vkCreateDescriptorSetLayout(device.get_device(), &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {

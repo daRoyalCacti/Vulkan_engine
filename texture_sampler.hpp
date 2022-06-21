@@ -22,6 +22,8 @@ struct TextureSampler {
     void setup(VkFilter magFilter, VkFilter minFilter, VkSamplerAddressMode adressMode);
     void cleanup() {vkDestroySampler(device.get_device(), textureSampler, nullptr);}
 
+    [[nodiscard]] VkSampler& get_sample() {return textureSampler;}
+
 private:
     LogicalDevice& device;
 };

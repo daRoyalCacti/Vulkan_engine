@@ -19,9 +19,9 @@
 //all commands in vulkan must be submitted using a command buffer
 // - command buffers are allocated from command pools
 struct CommandBuffers {
-    CommandBuffers(LogicalDevice &d, CommandPool &c, Framebuffers &f, RenderPass &r, SwapChain &s, GraphicsPipeline &g1, GraphicsPipeline &g2, GraphicsPipeline &g3, VertexBuffer<Vertex::TWOD_VC> &v1,
+    CommandBuffers(LogicalDevice &d, CommandPool &c, Framebuffers &f, RenderPass &r, SwapChain &s, GraphicsPipeline<Vertex::TWOD_VC> &g1, GraphicsPipeline<Vertex::TWOD_VC> &g2, GraphicsPipeline<Vertex::TWOD_VT> &g3, VertexBuffer<Vertex::TWOD_VC> &v1,
                    VertexBuffer<Vertex::TWOD_VC> &v2, IndexBuffer<uint16_t> &i, DescriptorSet &set,
-                   VertexBuffer<Vertex::TWOD_VC> &v3, DescriptorSet &set2)
+                   VertexBuffer<Vertex::TWOD_VT> &v3, DescriptorSet &set2)
         : device(d), command_pool(c), frame_buffers(f), render_pass(r), swap_chain(s), graphics_pipeline1(g1), graphics_pipeline2(g2), graphics_pipeline3(g3), vertex_buffer1(v1), vertex_buffer2(v2),
           index_buffer(i), descriptor_set(set), vertex_buffer3(v3), descriptor_set2(set2){}
 
@@ -41,12 +41,12 @@ private:
     Framebuffers &frame_buffers;
     RenderPass &render_pass;
     SwapChain &swap_chain;
-    GraphicsPipeline &graphics_pipeline1;
-    GraphicsPipeline &graphics_pipeline2;
-    GraphicsPipeline &graphics_pipeline3;
+    GraphicsPipeline<Vertex::TWOD_VC> &graphics_pipeline1;
+    GraphicsPipeline<Vertex::TWOD_VC> &graphics_pipeline2;
+    GraphicsPipeline<Vertex::TWOD_VT> &graphics_pipeline3;
     VertexBuffer<Vertex::TWOD_VC>& vertex_buffer1;
     VertexBuffer<Vertex::TWOD_VC>& vertex_buffer2;
-    VertexBuffer<Vertex::TWOD_VC>& vertex_buffer3;
+    VertexBuffer<Vertex::TWOD_VT>& vertex_buffer3;
     IndexBuffer<uint16_t>& index_buffer;
     DescriptorSet &descriptor_set;
     DescriptorSet &descriptor_set2;

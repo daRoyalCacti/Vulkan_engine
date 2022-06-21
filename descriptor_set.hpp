@@ -12,6 +12,8 @@
 #include "uniform_buffer_objects.hpp"
 #include "descriptor_pool.hpp"
 #include "descriptor_set_layout.hpp"
+#include "texture_sampler.hpp"
+#include "texture_view.hpp"
 
 /*It is actually possible to bind multiple descriptor sets simultaneously.
  * You need to specify a descriptor layout for each descriptor set when creating the pipeline layout.
@@ -48,17 +50,20 @@ struct DescriptorSet1 : public DescriptorSet{
 
 private:
     UniformBufferObject &UBO;
+
 };
 
 
 struct DescriptorSet2 : public DescriptorSet{
-    DescriptorSet2(LogicalDevice& d, SwapChain &s, UniformBufferObject &ubo, DescriptorPool& p, DescriptorSetLayout &l)
-            : DescriptorSet(d, s, p, l), UBO(ubo) {}
+    DescriptorSet2(LogicalDevice& d, SwapChain &s, UniformBufferObject &ubo, DescriptorPool& p, DescriptorSetLayout &l, TextureSampler &ts, TextureView &tv)
+            : DescriptorSet(d, s, p, l), UBO(ubo), texture_sampler(ts), texture_view(tv) {}
 
     void setup() override;
 
 private:
     UniformBufferObject &UBO;
+    TextureSampler &texture_sampler;
+    TextureView &texture_view;
 };
 
 
