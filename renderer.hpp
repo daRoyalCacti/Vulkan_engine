@@ -32,6 +32,7 @@
 #include "texture.hpp"
 #include "texture_view.hpp"
 #include "texture_sampler.hpp"
+#include "depth_image.hpp"
 
 constexpr std::string_view vertex_shader_location1 = "../shader_bytecode/2D_vc_vert.spv";
 constexpr std::string_view fragment_shader_location1 = "../shader_bytecode/2D_vc_frag.spv";
