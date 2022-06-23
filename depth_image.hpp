@@ -10,9 +10,9 @@
 #include "swap_chain.hpp"
 
 struct DepthImage {
-    VkImage depthImage;
-    VkDeviceMemory depthImageMemory;
-    VkImageView depthImageView;
+    VkImage depthImage{};
+    VkDeviceMemory depthImageMemory{};
+    VkImageView depthImageView{};
 
     DepthImage(LogicalDevice &d, SwapChain &c) : device(d), swap_chain(c) {}
 
