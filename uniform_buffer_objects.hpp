@@ -53,4 +53,10 @@ struct UniformBufferObject2 : public UniformBufferObject{
     void update(unsigned image_index) override;
 };
 
+//rotating but the last axis
+struct UniformBufferObject3 : public UniformBufferObject{
+    UniformBufferObject3(LogicalDevice& d, SwapChain &s) : UniformBufferObject(d,s) {}
+    void update(unsigned image_index) override;
+};
+
 #endif //VULKAN_ENGINE_UNIFORM_BUFFER_OBJECTS_HPP

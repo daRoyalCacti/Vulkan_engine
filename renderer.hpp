@@ -44,6 +44,7 @@ constexpr std::string_view vertex_shader_location3 = "../shader_bytecode/2D_vc_m
 constexpr std::string_view fragment_shader_location3 = "../shader_bytecode/2D_vc_mvp_frag_tex.spv";
 
 constexpr std::string_view texture_image = "../textures/statue.jpg";
+constexpr std::string_view texture_image2 = "../textures/wall.jpg";
 
 struct Renderer {
     std::vector<Vertex::TWOD_VC> vertices_triangle = {
@@ -77,15 +78,17 @@ struct Renderer {
            graphics_pipeline2(logical_device, swap_chain, render_pass, &descriptor_set_layout, vertex_shader_location2,  fragment_shader_location2),
                                    graphics_pipeline3(logical_device, swap_chain, render_pass, &descriptor_set_layout2, vertex_shader_location3,  fragment_shader_location3),
            render_pass(logical_device, swap_chain), framebuffers(logical_device, image_views, render_pass, swap_chain, depth_image), command_pool(logical_device, queue_family),
-           command_buffers(logical_device, command_pool, framebuffers, render_pass, swap_chain, graphics_pipeline1, graphics_pipeline2, graphics_pipeline3,vertex_buffer_triangle, vertex_buffer_square, index_buffer_square, descriptor_set, vertex_buffer_square2, descriptor_set2),
+           command_buffers(logical_device, command_pool, framebuffers, render_pass, swap_chain, graphics_pipeline1, graphics_pipeline2, graphics_pipeline3,vertex_buffer_triangle, vertex_buffer_square, index_buffer_square, descriptor_set, vertex_buffer_square2, descriptor_set2,descriptor_set3),
                                    semaphores(logical_device), fences(logical_device), vertex_buffer_triangle(logical_device, command_pool, vertices_triangle),
             vertex_buffer_square(logical_device, command_pool, vertices_square), index_buffer_square(logical_device, command_pool, indices_square), vertex_buffer_square2(logical_device, command_pool, vertices_square2),
             descriptor_set_layout(logical_device), descriptor_set_layout2(logical_device), uniform_buffer_object(logical_device, swap_chain), descriptor_pool(logical_device, swap_chain),
                                    uniform_buffer_object2(logical_device, swap_chain), descriptor_pool2(logical_device, swap_chain),
+                                   uniform_buffer_object3(logical_device, swap_chain),
                                    descriptor_set(logical_device, swap_chain, uniform_buffer_object, descriptor_pool, descriptor_set_layout),
                                    descriptor_set2(logical_device, swap_chain, uniform_buffer_object2, descriptor_pool2, descriptor_set_layout2, texture_sampler, texture_view),
-                                   texture(logical_device, command_pool, texture_image),
-                                   texture_view(logical_device, texture), texture_sampler(logical_device), depth_image(logical_device, swap_chain){}
+                                   descriptor_set3(logical_device, swap_chain, uniform_buffer_object3, descriptor_pool2, descriptor_set_layout2, texture_sampler, texture_view2),
+                                   texture(logical_device, command_pool, texture_image), texture2(logical_device, command_pool, texture_image2),
+                                   texture_view(logical_device, texture), texture_view2(logical_device, texture2), texture_sampler(logical_device), depth_image(logical_device, swap_chain){}
 #else
     explicit Renderer(Window& w) : window(w), logical_device(physical_device, queue_family), queue_family(physical_device.physicalDevice, surface.surface),
         surface(window, instance), physical_device(instance, surface) , swap_chain(window, logical_device, surface, queue_family) ,
@@ -95,15 +98,17 @@ struct Renderer {
        graphics_pipeline3(logical_device, swap_chain, render_pass, &descriptor_set_layout2, vertex_shader_location3,  fragment_shader_location3),
         render_pass(logical_device, swap_chain),
         framebuffers(logical_device, image_views, render_pass, swap_chain, depth_image), command_pool(logical_device, queue_family),
-       command_buffers(logical_device, command_pool, framebuffers, render_pass, swap_chain, graphics_pipeline1, graphics_pipeline2, graphics_pipeline3,vertex_buffer_triangle, vertex_buffer_square, index_buffer_square, descriptor_set, vertex_buffer_square2, descriptor_set2),
+       command_buffers(logical_device, command_pool, framebuffers, render_pass, swap_chain, graphics_pipeline1, graphics_pipeline2, graphics_pipeline3,vertex_buffer_triangle, vertex_buffer_square, index_buffer_square, descriptor_set, vertex_buffer_square2, descriptor_set2,descriptor_set3),
        semaphores(logical_device), fences(logical_device), vertex_buffer_triangle(logical_device, command_pool, vertices_triangle),
             vertex_buffer_square(logical_device, command_pool, vertices_square), index_buffer_square(logical_device, command_pool, indices_square), vertex_buffer_square2(logical_device, command_pool, vertices_square2),
             descriptor_set_layout(logical_device), descriptor_set_layout2(logical_device), uniform_buffer_object(logical_device, swap_chain), descriptor_pool(logical_device, swap_chain),
             uniform_buffer_object2(logical_device, swap_chain), descriptor_pool2(logical_device, swap_chain),
+            uniform_buffer_object3(logical_device, swap_chain),
                                    descriptor_set(logical_device, swap_chain, uniform_buffer_object, descriptor_pool, descriptor_set_layout),
                                    descriptor_set2(logical_device, swap_chain, uniform_buffer_object2, descriptor_pool2, descriptor_set_layout2, texture_sampler, texture_view),
-                                   texture(logical_device, command_pool, texture_image),
-                                   texture_view(logical_device, texture), texture_sampler(logical_device), depth_image(logical_device, swap_chain){}
+                                   descriptor_set3(logical_device, swap_chain, uniform_buffer_object3, descriptor_pool2, descriptor_set_layout2, texture_sampler, texture_view2),
+                                   texture(logical_device, command_pool, texture_image), texture2(logical_device, command_pool, texture_image2),
+                                   texture_view(logical_device, texture), texture_view2(logical_device, texture2), texture_sampler(logical_device), depth_image(logical_device, swap_chain){}
 #endif
     void initVulkan();
     void cleanup();
@@ -161,18 +166,20 @@ private:
     //UBO -- holds the data for the shader
     UniformBufferObject1 uniform_buffer_object;
     UniformBufferObject2 uniform_buffer_object2;
+    UniformBufferObject3 uniform_buffer_object3;
 
     //descriptor set layouts -- the layout of the data being passed to the shader
     DescriptorSetLayout1 descriptor_set_layout;
     DescriptorSetLayout2 descriptor_set_layout2;
 
     //descriptor pool --- holds the memory for the descriptor sets
-    DescriptorPool1 descriptor_pool;
-    DescriptorPool2 descriptor_pool2;
+    DescriptorPool1<1> descriptor_pool;
+    DescriptorPool2<2> descriptor_pool2;
 
     //descriptor set -- like command buffers but for descriptors
     DescriptorSet1 descriptor_set;
     DescriptorSet2 descriptor_set2;
+    DescriptorSet2 descriptor_set3;
 
     //memory to store command buffers
     CommandPool command_pool;
@@ -199,9 +206,11 @@ private:
 
     //structure to hold and image
     Texture texture;
+    Texture texture2;
 
     //structure to allow the gpu to access the images
     TextureView texture_view;
+    TextureView texture_view2;
 
     //structure specifying how the shader is to interface with images when there are more/less texels than fragments
     // - the settings for this are specified in the setup function

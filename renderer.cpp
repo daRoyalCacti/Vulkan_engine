@@ -41,15 +41,18 @@ void Renderer::initVulkan() {
     // - must be created before the descriptor set
     uniform_buffer_object.setup();
     uniform_buffer_object2.setup();
+    uniform_buffer_object3.setup();
 
     //creating command pools
     command_pool.setup();
 
     //creating the texture
     texture.setup();
+    texture2.setup();
 
     //creating the views into the 1 texture
     texture_view.setup();
+    texture_view2.setup();
 
     //creating how the shader accesses images (this is independent of any specific texture)
     texture_sampler.setup(VK_FILTER_LINEAR, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT);
@@ -66,6 +69,7 @@ void Renderer::initVulkan() {
     //creating the descriptor sets
     descriptor_set.setup();
     descriptor_set2.setup();
+    descriptor_set3.setup();
 
     //creating the render pass -- must be done before creating the graphics pipeline
     render_pass.setup();
@@ -116,6 +120,7 @@ void Renderer::cleanup() {
     //destorying the UBOs
     uniform_buffer_object.cleanup();
     uniform_buffer_object2.cleanup();
+    uniform_buffer_object3.cleanup();
 
     //destroying the descriptor pools
     descriptor_pool.cleanup();
@@ -138,9 +143,11 @@ void Renderer::cleanup() {
 
     //destroying the view into a texture
     texture_view.cleanup();
+    texture_view2.cleanup();
 
     //destroying the texture
     texture.cleanup();
+    texture2.cleanup();
 
     //destroying the command pool
     command_pool.cleanup();
@@ -217,6 +224,7 @@ void Renderer::drawFrame() {
     //updating the uniform buffers
     uniform_buffer_object.update(imageIndex);
     uniform_buffer_object2.update(imageIndex);
+    uniform_buffer_object3.update(imageIndex);
 
     //submitting the command buffer
     //=============================
@@ -299,6 +307,7 @@ void Renderer::recreateSwapChain() {
     descriptor_pool2.cleanup();
     uniform_buffer_object.cleanup();
     uniform_buffer_object2.cleanup();
+    uniform_buffer_object3.cleanup();
     depth_image.cleanup();
     framebuffers.cleanup();
     //we could recreate the command pool from scratch but this is wasteful
@@ -326,9 +335,11 @@ void Renderer::recreateSwapChain() {
     framebuffers.setup();       //frame buffers and command buffers depend directly on the swap chain images
     uniform_buffer_object.setup();  //the UBOs depend on the number of images in the swapchain
     uniform_buffer_object2.setup();
+    uniform_buffer_object3.cleanup();
     descriptor_pool.setup();        //depends on the number of images in the swapchain
     descriptor_pool2.setup();
     descriptor_set.setup();         //  ditto
     descriptor_set2.setup();
+    descriptor_set3.setup();
     command_buffers.setup();
 }

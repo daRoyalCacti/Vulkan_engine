@@ -137,6 +137,12 @@ void CommandBuffers::setup() {
 
         vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(index_buffer.indices.size()), 1, 0, 0, 0);
 
+        //binding the descriptor set for the other textured square
+        // - i.e. updating the layout values in the shader
+        vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline3.pipeline_layout, 0, 1, &descriptor_set3.get_sets()[i], 0, nullptr);
+
+        vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(index_buffer.indices.size()), 1, 0, 0, 0);
+
         //no longer recording to the render pass
         vkCmdEndRenderPass(commandBuffers[i]);
 
