@@ -12,7 +12,7 @@
 
 
 
-void create_image(LogicalDevice device, unsigned width, unsigned height, VkFormat, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory) {
+void create_image(LogicalDevice device, unsigned width, unsigned height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory) {
     //creating a texture object
     VkImageCreateInfo imageInfo{};                          //https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkImageCreateInfo.html
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;  //sType must be VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO
@@ -23,8 +23,9 @@ void create_image(LogicalDevice device, unsigned width, unsigned height, VkForma
     imageInfo.extent.depth = 1;                             //depth of the image (think 3D image)
     imageInfo.mipLevels = 1;                                //the number of levels of detail available
     imageInfo.arrayLayers = 1;                              //the number of layers in the image
-    imageInfo.format = VK_FORMAT_R8G8B8A8_SRGB;             //the format of the pixels
+    imageInfo.format = format;             //the format of the pixels
                                                             // - use the same format for the texels as the pixels in the buffer
+                                                            // - https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VkFormat.html
     imageInfo.tiling = tiling;                              //the arrangements of the texels in the image
                                                             // - VK_IMAGE_TILING_LINEAR: Texels are laid out in row-major order like our pixels array
                                                             // - VK_IMAGE_TILING_OPTIMAL: Texels are laid out in an implementation defined order for optimal access

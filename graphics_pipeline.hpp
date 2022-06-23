@@ -107,6 +107,22 @@ void GraphicsPipeline<T>::setup() {
 #endif
     ColorBlendState color_blend_state(color_blend_attachment_state);
 
+    //specifying the depth stencil
+    VkPipelineDepthStencilStateCreateInfo depthStencil{};                               //https://khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VkPipelineDepthStencilStateCreateInfo.html
+    depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;    //sType must be VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO
+    depthStencil.depthTestEnable = VK_TRUE;                                             //whether to used depth testing or not
+    depthStencil.depthWriteEnable = VK_TRUE;                                            //whether the new depth values should actually be written to the depth buffer
+    depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;                                   //specifying the operator to use for the depth test
+                                                                                        // - https://khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VkCompareOp.html
+    depthStencil.depthBoundsTestEnable = VK_FALSE;                                      //only keep fragments within a certain rage
+    depthStencil.minDepthBounds = 0.0f;                                                 //lower bound on the depth of fragments to keep
+    depthStencil.maxDepthBounds = 1.0f;                                                 //upper bound on the depth of fragments to keep
+    depthStencil.stencilTestEnable = VK_FALSE;                                          //to enable a stencil test
+    depthStencil.front = {};                                                            //not used -- parameters for a stencil test
+    depthStencil.back = {};                                                             //not used -- parameters for a stencil test
+
+
+
     //can also set the Dynamic stateVkRenderPass
     //https://vulkan-tutorial.com/Drawing_a_triangle/Graphics_pipeline_basics/Fixed_functions
 
@@ -120,7 +136,7 @@ void GraphicsPipeline<T>::setup() {
     pipelineInfo.pViewportState = &viewportState;
     pipelineInfo.pRasterizationState = &rasterizer.get_pipeline_stage();
     pipelineInfo.pMultisampleState = &multisample.get_pipeline_stage();
-    pipelineInfo.pDepthStencilState = nullptr; // not currently used
+    pipelineInfo.pDepthStencilState = &depthStencil;
     pipelineInfo.pColorBlendState = &color_blend_state.get_pipeline_stage();
     pipelineInfo.pDynamicState = nullptr; // no currently used
     //description of the binding locations (i.e. how uniforms work)

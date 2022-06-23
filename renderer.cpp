@@ -75,6 +75,9 @@ void Renderer::initVulkan() {
     graphics_pipeline2.setup();
     graphics_pipeline1.setup();
 
+    //creating the depth image
+    depth_image.setup();
+
     //creating the framebufers
     framebuffers.setup();
 
@@ -141,6 +144,9 @@ void Renderer::cleanup() {
 
     //destroying the command pool
     command_pool.cleanup();
+
+    //destroying the depth image
+    depth_image.cleanup();
 
     //destroying the framebuffers
     framebuffers.cleanup();
@@ -293,6 +299,7 @@ void Renderer::recreateSwapChain() {
     descriptor_pool2.cleanup();
     uniform_buffer_object.cleanup();
     uniform_buffer_object2.cleanup();
+    depth_image.cleanup();
     framebuffers.cleanup();
     //we could recreate the command pool from scratch but this is wasteful
     //just cleaning up the existing command buffers
@@ -315,6 +322,7 @@ void Renderer::recreateSwapChain() {
     graphics_pipeline1.setup(); //viewport and scissor changes so the graphics pipeline needs to be recreated
     graphics_pipeline2.setup(); // - could avoid this using dynamic states for the viewport and the scissors
     graphics_pipeline3.setup();
+    depth_image.setup();        //size of the depth image depends on the size of the images in the swap chain
     framebuffers.setup();       //frame buffers and command buffers depend directly on the swap chain images
     uniform_buffer_object.setup();  //the UBOs depend on the number of images in the swapchain
     uniform_buffer_object2.setup();

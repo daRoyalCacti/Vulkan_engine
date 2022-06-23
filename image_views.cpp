@@ -5,7 +5,7 @@
 #include "image_views.hpp"
 #include <stdexcept>
 
-void createImageView(LogicalDevice device, VkImage image, VkFormat format, VkImageView &imageView) {
+void createImageView(LogicalDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView &imageView) {
     VkImageViewCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;    //sType must be VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO
     createInfo.image = image;   //the image to create the view for
@@ -23,7 +23,7 @@ void createImageView(LogicalDevice device, VkImage image, VkFormat format, VkIma
     //what the purpose of the image is and which part of the image should be accessed
     // - see https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkImageSubresourceRange.html
     //doing nothing fancy so these values are all very simple
-    createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT; //which aspects of the image to take the view
+    createInfo.subresourceRange.aspectMask = aspectFlags; //which aspects of the image to take the view (stuff like colour or depth)
     createInfo.subresourceRange.baseMipLevel = 0;   //first mipmap level accessible to the view
     createInfo.subresourceRange.levelCount = 1;     //number of mipmap levels, starting from baseMipLevel, accessible to the view
     createInfo.subresourceRange.baseArrayLayer = 0; //first array layer accessible to the view
@@ -40,7 +40,7 @@ void ImageViews::setup() {
 
     //creating the image views for each image
     for (unsigned i = 0; i <  swap_chain.swapChainImages.size(); i++) {
-        createImageView(device, swap_chain.swapChainImages[i], swap_chain.surface_format.format, swapChainImageViews[i]);
+        createImageView(device, swap_chain.swapChainImages[i], swap_chain.surface_format.format, VK_IMAGE_ASPECT_COLOR_BIT, swapChainImageViews[i]);
     }
 
 }

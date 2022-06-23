@@ -7,6 +7,6 @@
 
 
 void TextureView::setup() {
-    createImageView(device, texture.get_image(), VK_FORMAT_R8G8B8A8_SRGB, textureImageView);
+    createImageView(device, texture.get_image(), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, textureImageView);
 }
 

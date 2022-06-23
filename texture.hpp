@@ -33,7 +33,7 @@ private:
 };
 
 //helper function to create images
-void create_image(LogicalDevice device, unsigned width, unsigned height, VkFormat, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+void create_image(LogicalDevice device, unsigned width, unsigned height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 
 //helper function to transfer the format of images
 // - images don't start off with any specific format (I'm pretty sure)

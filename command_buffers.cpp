@@ -62,8 +62,13 @@ void CommandBuffers::setup() {
         renderPassInfo.renderArea.offset = {0, 0};
         renderPassInfo.renderArea.extent = swap_chain.extent;
         //how the screen is cleared
-        renderPassInfo.clearValueCount = 1;             //the number of clear colours
-        renderPassInfo.pClearValues = &clear_colour;    //array that holds the clear value for each framebuffer
+        // - need to clear both the colour and depth attachments
+        std::array<VkClearValue, 2> clearValues{};
+        clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
+        clearValues[1].depthStencil = {1.0f, 0};
+
+        renderPassInfo.clearValueCount = clearValues.size();             //the number of clear colours
+        renderPassInfo.pClearValues = clearValues.data();    //array that holds the clear value for each framebuffer
                                                         //array is indexed by attachment number
 
         //adding the render pass to the command buffer
